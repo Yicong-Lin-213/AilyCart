@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-hyperlegible: "Atkinson Hyperlegible", sans-serif;
+
+  --text-h1: 2rem;
+  --text-h2: 1.5rem;
+  --text-action: 1.375rem;
+  --text-body-lg: 1.25rem;
+  --text-body-sm: 1.125rem;
+
+  --color-brand-blue: #1565C0;
+  --color-success-green: #2E7D32;
+  --color-alert-red: #D32F2F;
+  --color-text-secondary: #595959;
+  --color-bg-main: #FFFFFF;
+  --color-text-primary: #1A1A1A;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-hyperlegible);
+    line-height: 1.5;
+    letter-spacing: 0.03em;
+    @apply antialiased text-text-primary bg-bg-main;
+  }
+
+  h1 { @apply text-h1 font-bold; }
+  h2 { @apply text-h2 font-bold; }
+}
