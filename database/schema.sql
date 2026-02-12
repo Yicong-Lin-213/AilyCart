@@ -25,3 +25,12 @@ CREATE TABLE inventory_items (
   expiry_date DATE,
   last_purchased_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+CREATE OR REPLACE VIEW product_consumption_rates AS
+SELECT 
+    user_id,
+    item_name,
+    COUNT(*) as purchase_count,
+    MAX(created_at) - MIN(created_at) / NULLIF(COUNT(*)-1, 0) as avg_interval
+FROM inventory
+GROUP BY user_id, item_name;
