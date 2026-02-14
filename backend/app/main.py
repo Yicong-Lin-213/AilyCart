@@ -20,6 +20,10 @@ app.add_middleware(
 class ReceiptRequest(BaseModel):
     image_url: str
 
+@app.get("/")
+def read_root():
+    return {"status": "ok", "message": "Backend is running!"}
+
 @app.post("/api/v1/process-receipt")
 async def process_receipt(request: ReceiptRequest):
     data = await analyze_receipt(request.image_url)
