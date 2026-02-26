@@ -60,38 +60,6 @@ export default function Scanning() {
         );
     }
 
-    // const takeAndProcessPicture_bk = async () => {
-    //     try {
-    //         const { scannedImages } = await (DocumentScanner as any).scanDocument({
-    //             maxNumDocuments: 1,
-    //             letUserAdjustCrop: true,
-    //         });
-
-    //         if (scannedImages && scannedImages.length > 0) {
-    //             const originalScannedImage = scannedImages[0];
-
-    //             setIsProcessing(true);
-    //             setCapturedUri(originalScannedImage);
-
-    //             const result = await ImageManipulator.manipulateAsync(
-    //                 originalScannedImage,
-    //                 [{ resize: { width: 1200 } }],
-    //                 {
-    //                     format: ImageManipulator.SaveFormat.JPEG,
-    //                     compress: 0.8,
-    //                     base64: false,
-    //                 }
-    //             );
-
-    //             setProcessedUri(result.uri);
-    //         }
-    //     } catch (error) {
-    //         console.error("❌ Error:", error);
-    //     } finally {
-    //         setIsProcessing(false);
-    //     }
-    // };
-
     const takeAndProcessPicture = async () => {
         if (cameraRef.current && frameLayout) {
             const photo = await cameraRef.current.takePictureAsync({
@@ -99,14 +67,6 @@ export default function Scanning() {
                 base64: false,
                 exif: false,
             });
-
-            // For debugging
-            // console.log("📸 [Original Photo]:", {
-            //     uri: photo.uri,
-            //     width: photo.width,
-            //     height: photo.height,
-            //     screenSize: { width: screen.width, height: screen.height }
-            // });
 
             setCapturedUri(photo.uri);
             setIsProcessing(true);
@@ -129,14 +89,6 @@ export default function Scanning() {
                         base64: false,
                     }
                 );
-
-                // for debugging
-                // console.log("✂️ [Processed/Cropped Photo]:", {
-                //     uri: result.uri,
-                //     width: result.width,
-                //     height: result.height,
-                //     cropUsed: cropConfig
-                // });
 
                 setProcessedUri(result.uri);
             } catch (error) {
@@ -169,7 +121,7 @@ export default function Scanning() {
                             </TouchableOpacity>
                         </View>
                         {/* Guidelines */}
-                        <View style={[tw`flex-1 items-center w-full px-6 py-6`]}>
+                        <View style={[tw`flex-1 items-center w-full px-12 py-6`]}>
                             <View 
                                 style={[tw`w-full h-full border-2 border-white rounded-3xl`, { borderStyle: 'dashed' }]}
                                 onLayout={onFrameLayout}
