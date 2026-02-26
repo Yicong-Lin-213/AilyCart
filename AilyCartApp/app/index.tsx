@@ -1,11 +1,11 @@
-import { View, Text, Pressable, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import tw from '../lib/tailwind';
 import { SCAN_PHASES } from '../constants/scan-steps';
 import { useState } from 'react';
-import Svg, { Path } from 'react-native-svg';
 import { useUser } from '../context/user-context';
 import { supabase } from '@/lib/supabase-client';
+import CameraButton from '@/components/ui/camera-button';
 
 export default function Welcome() {
     const router = useRouter();
@@ -32,19 +32,8 @@ export default function Welcome() {
             </Text>
 
             <View style={tw`flex-1 items-center justify-center w-full`}>
-                <Pressable
-                    style={({ pressed }) => [
-                        tw`w-36 h-28 bg-aily-blue rounded-[20px] items-center justify-center shadow-lg`,
-                        pressed && tw`scale-90`
-                    ]}
-                    onPress={() => router.push("/scanning")}
-                >
-                    {/* Camera Icon */}
-                    <Svg width="64" height="64" viewBox="0 0 24 24" fill="white">
-                        <Path d="M4 4h3l2-2h6l2 2h3a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm8 15a5 5 0 100-10 5 5 0 000 10z" />
-                    </Svg>
-                </Pressable>
-                <Text style={tw`text-aily-primary text-aily-action font-atkinson-bold text-center py-4 w-full`}>Scan Receipt</Text>
+                <CameraButton onPress={()=>router.push('/scanning')} />
+                <Text style={tw`text-aily-primary text-aily-action font-atkinson-bold text-center w-full`}>Scan Receipt</Text>
             </View>
         </View>
     );
