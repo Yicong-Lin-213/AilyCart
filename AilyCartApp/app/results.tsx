@@ -5,6 +5,9 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase-client';
 import { File } from 'expo-file-system';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { useUser } from '../context/user-context';
+import * as Speech from 'expo-speech';
+import { VoiceButton } from '@/components/ui/voice-button';
 
 interface ReceiptData {
     merchant: { name: string | null; address: string | null; phone: string | null };
@@ -17,12 +20,16 @@ interface ReceiptData {
 export default function Results() {
     const router = useRouter();
     const { images } = useLocalSearchParams();
-    const [ loading, setLoading] = useState(true);
-    const [ receiptData, setReceiptData ] = useState<ReceiptData | null>(null);
-    const [ uploadingStatus, setUploadingStatus] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
+    const [uploadingStatus, setUploadingStatus] = useState("");
     const [originalItemNames, setOriginalItemNames] = useState<string[]>([]);
-    const [nameMapping, setNameMapping] = useState<{ [key: string]: string }>({ });
+    const [nameMapping, setNameMapping] = useState<{ [key: string]: string }>({});
     const [showDataPicker, setShowDataPicker] = useState(false);
+    const { displayName, voiceEnabled } = useUser();
+
+    // Track which item is currently being spoken, -1 for summary and null for none
+    const [playingIndex, setPlayingIndex] = useState<number | null>(null);
 
     const getDateObject = () => {
         if (receiptData?.transaction?.date) {
@@ -54,7 +61,7 @@ export default function Results() {
                 const { data: { publicUrl } } = supabase.storage.from('receipt_images').getPublicUrl(data.path);
                 return publicUrl;
             };
-                
+
             const uploadedUrls = await Promise.all(
                 imagePaths.map(async (uri: string, index: number) => uploadToSupabase(uri, index))
             )
@@ -83,7 +90,7 @@ export default function Results() {
         const originalName = originalItemNames[index];
         const newItems = [...receiptData.items];
         newItems[index].name = newName;
-        setReceiptData({ ...receiptData, items: newItems});
+        setReceiptData({ ...receiptData, items: newItems });
 
         if (newName !== originalName) {
             setNameMapping(prev => ({ ...prev, [originalName]: newName }));
@@ -94,11 +101,11 @@ export default function Results() {
         if (!receiptData) return;
         const newItems = [...receiptData.items];
         newItems[index].total_price = parseFloat(newPrice) || 0;
-        setReceiptData({ ...receiptData, items: newItems});
+        setReceiptData({ ...receiptData, items: newItems });
     };
 
     const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-        if (event.type === 'dismissed' ) {
+        if (event.type === 'dismissed') {
             setShowDataPicker(false);
             return;
         }
@@ -108,7 +115,40 @@ export default function Results() {
         }
 
         const formattedDate = selectedDate?.toISOString().split('T')[0] || "";
-        setReceiptData(prev => prev ? { ...prev, transaction: { ...prev.transaction, date: formattedDate }} : null);
+        setReceiptData(prev => prev ? { ...prev, transaction: { ...prev.transaction, date: formattedDate } } : null);
+    };
+
+    const onToggleVoice = (index: number) => {
+        Speech.stop();
+
+        if (playingIndex === index) {
+            setPlayingIndex(null);
+            return;
+        }
+
+        setPlayingIndex(index);
+        let message = "";
+        if (index === -1) {
+            const merchantName = receiptData?.merchant?.name || "the store";
+            const totalAmount = receiptData?.totals?.total?.toFixed(2) || "0.00";
+            message = `Hello ${displayName}, you have purchased items from ${merchantName} for a total of ${totalAmount}.`;
+        } else {
+            const item = receiptData?.items[index];
+            if (item) {
+                message = `You have purchased ${item.name} for ${item.total_price?.toFixed(2) || "0.00"} dollars.`;
+            }
+        }
+        if (message) {
+            Speech.speak(message, {
+                language: 'en-US',
+                onDone: () => setPlayingIndex(null),
+                onStopped: () => setPlayingIndex(null),
+                onError: (error) => {
+                    console.error("TTS error:", error);
+                    setPlayingIndex(null);
+                }
+            });
+        }
     };
 
     useEffect(() => {
@@ -116,6 +156,15 @@ export default function Results() {
             processImages();
         }
     }, [images]);
+
+    useEffect(() => {
+        if (voiceEnabled && receiptData && !loading) {
+            onToggleVoice(-1);
+        }
+        return () => {
+            Speech.stop();
+        }
+    }, [loading, receiptData, voiceEnabled]);
 
     if (loading) {
         return (
@@ -131,10 +180,10 @@ export default function Results() {
             <View style={tw`mb-6`}>
                 <TextInput style={tw`text-aily-h2 font-atkinson-bold text-aily-primary`}
                     value={receiptData?.merchant?.name || ""}
-                    onChangeText={(text) => setReceiptData(prev => prev ? { ...prev, merchant: { ...prev?.merchant, name: text }} : null)}
+                    onChangeText={(text) => setReceiptData(prev => prev ? { ...prev, merchant: { ...prev?.merchant, name: text } } : null)}
                 />
                 <View style={tw`mb-6`}>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         onPress={() => setShowDataPicker(true)}
                         style={tw`bg-white pt-4 flex-row justify-between items-center`}
                     >
@@ -151,10 +200,10 @@ export default function Results() {
                             maximumDate={new Date()}
                         />
                     )}
-                    
+
                     {showDataPicker && Platform.OS === 'ios' && (
                         <TouchableOpacity
-                            onPress={ ()=>setShowDataPicker(false) }
+                            onPress={() => setShowDataPicker(false)}
                             style={tw`mt-2 times-end`}
                         >
                             <Text style={tw`text-aily-blue font-atkinson-bold p-2`}>Done</Text>
@@ -162,13 +211,13 @@ export default function Results() {
                     )}
                 </View>
             </View>
-            
+
             {/* Goods */}
             <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
-                {receiptData?.items && receiptData?.items.length > 0 ? ( receiptData.items.map((item, index) => (
+                {receiptData?.items && receiptData?.items.length > 0 ? (receiptData.items.map((item, index) => (
                     <View key={index} style={tw`flex-row justify-between py-4 border-b border-gray-100`}>
                         <View style={tw`flex-1`}>
-                            <TextInput 
+                            <TextInput
                                 style={tw`text-aily-body-lg font-atkinson text-aily-primary`}
                                 value={item.name}
                                 onChangeText={(text) => handleNameChange(text, index)}
@@ -176,12 +225,15 @@ export default function Results() {
                             />
                             <Text style={tw`text-aily-body-sm font-atkinson-bold text-aily-primary`}>Qty: {item.quantity} x {item.price_per_unit}</Text>
                         </View>
-                        <TextInput
-                            style={tw`text-aily-body-lg font-atkinson-bold text-aily-primary`}
-                            value={item.total_price.toFixed(2)}
-                            onChangeText={(text) => handlePriceChange(text, index)}
-                            keyboardType='numeric'
-                        />
+                        <View style={tw`flex-row items-center gap-1`}>
+                            <TextInput
+                                style={tw`text-aily-body-lg font-atkinson-bold text-aily-primary`}
+                                value={item.total_price.toFixed(2)}
+                                onChangeText={(text) => handlePriceChange(text, index)}
+                                keyboardType='numeric'
+                            />
+                            <VoiceButton isPlaying={playingIndex === index} onPress={() => onToggleVoice(index)} size={30} />
+                        </View>
                     </View>
                 ))) : (
                     <View style={tw`h-full flex items-center justify-center`}>
@@ -191,9 +243,12 @@ export default function Results() {
             </ScrollView>
 
             <View style={tw`mb-6 pt-4 border-t-2 border-aily-secondary`}>
-                <View style={tw`flex-row justify-between mb-2`}>
-                    <Text style={tw`text-aily-body-lg font-atkinson-bold text-aily-primary`}>TOTAL</Text>
-                    <Text style={tw`text-aily-h1 font-atkinson-bold text-aily-primary`}>${receiptData?.totals?.total.toFixed(2) || "---"}</Text>
+                <View style={tw`flex-row justify-between mb-2 items-center`}>
+                    <View style={tw`flex-row items-center gap-1`}>
+                        <VoiceButton isPlaying={playingIndex === -1} onPress={() => onToggleVoice(-1)} size={35} />
+                        <Text style={tw`text-aily-h2 font-atkinson-bold text-aily-primary`}>TOTAL</Text>
+                    </View>
+                    <Text style={tw`text-aily-h2 font-atkinson-bold text-aily-primary`}>${receiptData?.totals?.total?.toFixed(2) || "---"}</Text>
                 </View>
             </View>
 

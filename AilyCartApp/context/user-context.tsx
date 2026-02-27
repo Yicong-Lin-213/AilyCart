@@ -3,21 +3,17 @@ import { supabase } from '../lib/supabase-client';
 
 interface UserContextType {
     displayName: string;
+    voiceEnabled: boolean;
     loading: boolean;
     refreshProfile: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
-//     {
-//         displayName: '',
-//         loading: true,
-//         refreshProfile: async () => {},
-//     }
-// );
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const [displayName, setDisplayName] = useState('');
     const [loading, setLoading] = useState(true); 
+    const [voiceEnabled, setVoiceEnabled] = useState(true);
 
     const refreshProfile = async () => {
         try {
@@ -27,11 +23,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             if (user) {
                 const {data} = await supabase
                     .from('profiles')
-                    .select('full_name')
+                    .select('full_name, voice_enabled')
                     .eq('id', user.id)
                     .single();
                 
-                if (data?.full_name) setDisplayName(data.full_name);
+                if (data?.full_name) {
+                    setDisplayName(data.full_name);
+                    setVoiceEnabled(data.voice_enabled);
+                }
                 else if (user.user_metadata?.display_name) setDisplayName(user.user_metadata.display_name);
                 else setDisplayName(user.email?.split('@')[0] || "User");
             } else {
@@ -57,7 +56,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }, []);
 
     return (
-        <UserContext.Provider value={{ displayName, loading, refreshProfile }}>
+        <UserContext.Provider value={{ displayName, voiceEnabled, loading, refreshProfile }}>
             {children}
         </UserContext.Provider>
     );
