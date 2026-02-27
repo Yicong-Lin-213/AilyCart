@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image, ActivityIndicator, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Image, ActivityIndicator, StyleSheet, Dimensions, ScrollView } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import React, { useState, useRef, useCallback } from 'react';
 import tw from '../lib/tailwind';
@@ -22,6 +22,7 @@ export default function Scanning() {
     const [permission, requestPermission] = useCameraPermissions();
     const [capturedUri, setCapturedUri] = useState<string | null>(null);
     const [processedUri, setProcessedUri] = useState<string | null>(null);
+    const [capturedImages, setCapturedImages] = useState<string[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const cameraRef = useRef<CameraView>(null);
     const [flash, setFlash] = useState<FlashMode>('off');
@@ -68,7 +69,6 @@ export default function Scanning() {
                 exif: false,
             });
 
-            setCapturedUri(photo.uri);
             setIsProcessing(true);
 
             const scale = photo.width / screen.width;
@@ -90,7 +90,7 @@ export default function Scanning() {
                     }
                 );
 
-                setProcessedUri(result.uri);
+                setCapturedImages(prev => [...prev, result.uri]);
             } catch (error) {
                 console.error("Image processing error:", error);
             } finally {
@@ -103,12 +103,12 @@ export default function Scanning() {
         <View style={tw`flex-1 bg-black`}>
             {!capturedUri ? (
                 <>
-                    <CameraView 
-                        ref={cameraRef} 
-                        style={StyleSheet.absoluteFill} 
+                    <CameraView
+                        ref={cameraRef}
+                        style={StyleSheet.absoluteFill}
                         facing="back"
                         autofocus="on"
-                        enableTorch={flash === 'on'} 
+                        enableTorch={flash === 'on'}
                         flash={flash} />
                     <View style={[StyleSheet.absoluteFill, tw`justify-between`]}>
                         {/* Top Bar */}
@@ -116,13 +116,16 @@ export default function Scanning() {
                             <TouchableOpacity onPress={() => router.back()} style={tw`p-2 bg-black/40 rounded-full`}>
                                 <X size={35} color="white" />
                             </TouchableOpacity>
+                            <View style={tw`justify-center rounded-full`}>
+                                <Text style={tw`text-aily-bg text-aily-action font-atkinson-bold`}>{capturedImages.length} / 4</Text>
+                            </View>
                             <TouchableOpacity onPress={toggleFlash} style={tw`p-2 ${flash !== 'off' ? 'bg-aily-blue' : 'bg-black/40'} rounded-full`}>
                                 <Zap size={35} color="white" fill={flash === 'on' ? 'white' : 'transparent'} />
                             </TouchableOpacity>
                         </View>
                         {/* Guidelines */}
                         <View style={[tw`flex-1 items-center w-full px-12 py-6`]}>
-                            <View 
+                            <View
                                 style={[tw`w-full h-full border-2 border-white rounded-3xl`, { borderStyle: 'dashed' }]}
                                 onLayout={onFrameLayout}
                             >
@@ -137,11 +140,29 @@ export default function Scanning() {
                         </View>
                         {/* Button */}
                         <View style={[tw`mb-12 items-center`, { marginBottom: insets.bottom + 10 }]}>
+                            <View style={tw`w-full px-8 items-center flex-row mb-2`}>
+                                <ScrollView horizontal style={tw`flex-row gap-4`} showsHorizontalScrollIndicator={false}>
+                                    {capturedImages.map((uri, i) => (
+                                        <Image key={i} source={{ uri }} style={tw`w-15 h-15 rounded-lg mr-2 border-2 border-white`} />
+                                    ))}
+                                </ScrollView>
+                                {capturedImages.length > 0 && (
+                                    <TouchableOpacity
+                                        onPress={() => router.push({
+                                            pathname: '/results',
+                                            params: { images: JSON.stringify(capturedImages) }
+                                        })}
+                                        style={tw`bg-aily-green p-4 rounded-[15px] shadow-lg border-2 border-aily-secondary`}
+                                    >
+                                        <Text style={tw`text-white font-atkinson-bold text-aily-body-sm`}>DONE</Text>
+                                    </TouchableOpacity>
+                                )}
+                            </View>
                             <TouchableOpacity
                                 onPress={takeAndProcessPicture}
                                 style={tw`w-20 h-20 bg-white rounded-full border-4 justify-center items-center border-aily-blue`}
                             >
-                                <View style={tw`w-16 h-16 bg-aily-blue rounded-full justify-center items-center`} />
+                                {isProcessing ? <ActivityIndicator size="large" color="#1565C0" /> : <View style={tw`w-16 h-16 bg-aily-blue rounded-full justify-center items-center`} />}
                             </TouchableOpacity>
                         </View>
                     </View>

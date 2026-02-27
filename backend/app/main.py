@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from openai import OpenAI
 from dotenv import load_dotenv
+from typing import Optional, List
 
 from app.services.ocr import analyze_receipt
 
@@ -18,7 +19,8 @@ app.add_middleware(
 )
 
 class ReceiptRequest(BaseModel):
-    image_url: str
+    image_url: Optional[str] = None
+    image_urls: Optional[list[str]] = None
 
 @app.get("/")
 def read_root():
@@ -26,7 +28,16 @@ def read_root():
 
 @app.post("/api/v1/process-receipt")
 async def process_receipt(request: ReceiptRequest):
-    data = await analyze_receipt(request.image_url)
+    target_urls = []
+    if request.image_urls and len(request.image_urls) > 0:
+        target_urls = request.image_urls
+    elif request.image_url:
+        target_urls = [request.image_url]
+    
+    if not target_urls:
+        raise HTTPException(status_code=400, detail="No image URLs provided")
+        
+    data = await analyze_receipt(target_urls)
     if not data:
         raise HTTPException(status_code=500, detail="Failed to extract receipt data")
     

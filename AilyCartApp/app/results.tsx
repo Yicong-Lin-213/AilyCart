@@ -47,8 +47,9 @@ export default function Results() {
 
             setUploadingStatus("Uploading images...");
 
+            const now = Date.now();
             const uploadToSupabase = async (uri: string, index: number) => {
-                const fileName = `receipt_${Date.now()}_${index}.jpg`;
+                const fileName = `receipt_${now}_${index}.jpg`;
                 const file = new File(uri);
                 const arrayBuffer = await file.arrayBuffer();
 
@@ -70,7 +71,7 @@ export default function Results() {
             const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/v1/process-receipt`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image_url: uploadedUrls[0] }), // TODO: handle multiple images
+                body: JSON.stringify({ image_urls: uploadedUrls }),
             });
 
             const data = await response.json();
@@ -182,7 +183,7 @@ export default function Results() {
                     value={receiptData?.merchant?.name || ""}
                     onChangeText={(text) => setReceiptData(prev => prev ? { ...prev, merchant: { ...prev?.merchant, name: text } } : null)}
                 />
-                <View style={tw`mb-6`}>
+                {receiptData && (<View style={tw`mb-6`}>
                     <TouchableOpacity
                         onPress={() => setShowDataPicker(true)}
                         style={tw`bg-white pt-4 flex-row justify-between items-center`}
@@ -209,7 +210,7 @@ export default function Results() {
                             <Text style={tw`text-aily-blue font-atkinson-bold p-2`}>Done</Text>
                         </TouchableOpacity>
                     )}
-                </View>
+                </View>)}
             </View>
 
             {/* Goods */}
