@@ -1,5 +1,4 @@
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack, Slot, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
@@ -9,8 +8,8 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase-client';
 import { Session } from '@supabase/supabase-js';
 import { UserProvider } from '../context/user-context';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import tw from '../lib/tailwind';
+import { View, ActivityIndicator } from 'react-native';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -44,18 +43,25 @@ export default function RootLayout() {
 
   useEffect(() => {
     console.log("Check session:", !!session, "Segments:", segments, "Initialized:", initialized);
-    if (!initialized) return;
+    if (!initialized || !loaded) return;
 
     const isAuth = segments[0] === 'auth';
-    if (isAuth && session) {
-      console.log("Redirecting to /index...");
-      router.replace('/');
+    const isTabs = segments[0] === '(tabs)';
+    const isScanning = segments[0] === 'scanning';
+    const isResults = segments[0] === 'results';
+
+    if (session) {
+      if (!isTabs && !isScanning && !isResults) {
+        console.log("Redirecting to /t_inventory...");
+        router.replace('/(tabs)/t_inventory');
+      }
+    } else {
+      if (!isAuth) {
+        console.log("Redirecting to /auth...");
+        router.replace('/auth');
+      }
     }
-    else if (!isAuth && !session) {
-      console.log("Redirecting to /auth...");
-      router.replace('/auth');
-    }
-  }, [session, initialized, segments, router]);
+  }, [session, initialized, segments, loaded]);
 
   useEffect(() => {
     if (loaded || error) {
@@ -67,29 +73,25 @@ export default function RootLayout() {
     return null;
   }
 
-  // const colorScheme = useColorScheme();
+  if (!initialized) {
+    return (
+      <View style={tw`flex-1 justify-center items-center bg-aily-bg`}>
+        <ActivityIndicator size="large" color="#1565C0" />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaProvider>
       <UserProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="auth" />
-          <Stack.Screen name="scanning" />
+        <Stack screenOptions={{ headerShown: false }} initialRouteName="(tabs)">
+          <Stack.Screen name="(tabs)" options={{animation: 'fade'}} />
+          <Stack.Screen name="auth" options={{animation: 'none'}} />
+          <Stack.Screen name="scanning" options={{presentation: 'fullScreenModal'}} />
           <Stack.Screen name="results" />
         </Stack>
         <StatusBar style="auto" />
       </UserProvider>
     </SafeAreaProvider>
   );
-
-  // return (
-  //   <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-  //     <Stack>
-  //       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-  //       <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-  //     </Stack>
-  //     <StatusBar style="auto" />
-  //   </ThemeProvider>
-  // );
 }

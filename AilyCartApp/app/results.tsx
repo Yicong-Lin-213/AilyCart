@@ -172,7 +172,7 @@ export default function Results() {
         }
         finally {
             setLoading(false);
-            // router.replace("/");
+            router.replace("/(tabs)/t_inventory");
         }
     }
 
@@ -183,7 +183,7 @@ export default function Results() {
     }, [images]);
 
     useEffect(() => {
-        if (voiceEnabled && receiptData && !loading) {
+        if (voiceEnabled && receiptData && receiptData.merchant?.name && !loading) {
             onToggleVoice(-1);
         }
         return () => {
@@ -207,7 +207,7 @@ export default function Results() {
                     value={receiptData?.merchant?.name || ""}
                     onChangeText={(text) => setReceiptData(prev => prev ? { ...prev, merchant: { ...prev?.merchant, name: text } } : null)}
                 />
-                {receiptData && (<View style={tw`mb-6`}>
+                {receiptData && receiptData.merchant?.name && (<View style={tw`mb-6`}>
                     <TouchableOpacity
                         onPress={() => setShowDataPicker(true)}
                         style={tw`bg-white pt-4 flex-row justify-between items-center`}
@@ -268,13 +268,15 @@ export default function Results() {
             </ScrollView>
 
             <View style={tw`mb-6 pt-4 border-t-2 border-aily-secondary`}>
-                <View style={tw`flex-row justify-between mb-2 items-center`}>
-                    <View style={tw`flex-row items-center gap-1`}>
-                        <VoiceButton isPlaying={playingIndex === -1} onPress={() => onToggleVoice(-1)} size={35} />
-                        <Text style={tw`text-aily-h2 font-atkinson-bold text-aily-primary`}>TOTAL</Text>
+                {receiptData?.merchant?.name && (
+                    <View style={tw`flex-row justify-between mb-2 items-center`}>
+                        <View style={tw`flex-row items-center gap-1`}>
+                            <VoiceButton isPlaying={playingIndex === -1} onPress={() => onToggleVoice(-1)} size={35} />
+                            <Text style={tw`text-aily-h2 font-atkinson-bold text-aily-primary`}>TOTAL</Text>
+                        </View>
+                        <Text style={tw`text-aily-h2 font-atkinson-bold text-aily-primary`}>${receiptData?.totals?.total?.toFixed(2) || "---"}</Text>
                     </View>
-                    <Text style={tw`text-aily-h2 font-atkinson-bold text-aily-primary`}>${receiptData?.totals?.total?.toFixed(2) || "---"}</Text>
-                </View>
+                )}
             </View>
 
             {/* Buttons */}
@@ -282,9 +284,16 @@ export default function Results() {
                 <TouchableOpacity style={tw`flex-1 py-5 bg-aily-red rounded-2xl py-4`} onPress={() => router.back()}>
                     <Text style={tw`text-aily-bg text-aily-action font-atkinson-bold text-center uppercase`}>Retake</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={tw`flex-1 py-5 bg-aily-blue rounded-2xl py-4`} onPress={() => onSaveReceipt()}>
-                    <Text style={tw`text-aily-bg text-aily-action font-atkinson-bold text-center uppercase`}>Confirm</Text>
-                </TouchableOpacity>
+
+                {receiptData?.merchant?.name ? (
+                    <TouchableOpacity style={tw`flex-1 py-5 bg-aily-blue rounded-2xl py-4`} onPress={() => onSaveReceipt()}>
+                        <Text style={tw`text-aily-bg text-aily-action font-atkinson-bold text-center uppercase`}>Confirm</Text>
+                    </TouchableOpacity>
+                ):(
+                    <TouchableOpacity style={tw`flex-1 py-5 bg-aily-blue rounded-2xl py-4`} onPress={() => router.replace("/(tabs)/t_inventory")}>
+                        <Text style={tw`text-aily-bg text-aily-action font-atkinson-bold text-center uppercase`}>Cancel</Text>
+                    </TouchableOpacity>
+                )}
             </View>
         </View>
     );
