@@ -26,7 +26,7 @@ export default function Results() {
     const [originalItemNames, setOriginalItemNames] = useState<string[]>([]);
     const [nameMapping, setNameMapping] = useState<{ [key: string]: string }>({});
     const [showDataPicker, setShowDataPicker] = useState(false);
-    const { displayName, voiceEnabled } = useUser();
+    const { userId, displayName, voiceEnabled } = useUser();
 
     // Track which item is currently being spoken, -1 for summary and null for none
     const [playingIndex, setPlayingIndex] = useState<number | null>(null);
@@ -68,6 +68,7 @@ export default function Results() {
             )
 
             setUploadingStatus("Analyzing receipt...");
+            console.debug("Sending request to backend:", uploadedUrls);
             const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/v1/process-receipt`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -75,6 +76,7 @@ export default function Results() {
             });
 
             const data = await response.json();
+            console.debug("Received response from backend:", data.payload);
             setReceiptData(data.payload);
 
             setOriginalItemNames(data.items?.map((item: any) => item.name) || []);
@@ -151,6 +153,28 @@ export default function Results() {
             });
         }
     };
+
+    const onSaveReceipt = async () => {
+        try {
+            setUploadingStatus("Archiving receipt...");
+            const rsp = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/v1/archive-receipt`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: userId,
+                    receipt_data: receiptData,
+                    name_mapping: nameMapping,
+                }),
+            });
+            console.debug("Save receipt response:", rsp.ok);
+        } catch (error) {
+            console.error("Save receipt failed", error);
+        }
+        finally {
+            setLoading(false);
+            // router.replace("/");
+        }
+    }
 
     useEffect(() => {
         if (images) {
@@ -256,10 +280,10 @@ export default function Results() {
             {/* Buttons */}
             <View style={tw`flex-row gap-4 w-full`}>
                 <TouchableOpacity style={tw`flex-1 py-5 bg-aily-red rounded-2xl py-4`} onPress={() => router.back()}>
-                    <Text style={tw`text-aily-bg text-lg font-atkinson-bold text-center`}>Retake</Text>
+                    <Text style={tw`text-aily-bg text-aily-action font-atkinson-bold text-center uppercase`}>Retake</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={tw`flex-1 py-5 bg-aily-blue rounded-2xl py-4`} onPress={() => router.replace("/")}>
-                    <Text style={tw`text-aily-bg text-lg font-atkinson-bold text-center`}>Confirm</Text>
+                <TouchableOpacity style={tw`flex-1 py-5 bg-aily-blue rounded-2xl py-4`} onPress={() => onSaveReceipt()}>
+                    <Text style={tw`text-aily-bg text-aily-action font-atkinson-bold text-center uppercase`}>Confirm</Text>
                 </TouchableOpacity>
             </View>
         </View>

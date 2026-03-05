@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase-client';
 
 interface UserContextType {
+    userId: string | null;
     displayName: string;
     voiceEnabled: boolean;
     loading: boolean;
@@ -11,6 +12,7 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
+    const [userId, setUserId] = useState<string | null>(null);
     const [displayName, setDisplayName] = useState('');
     const [loading, setLoading] = useState(true); 
     const [voiceEnabled, setVoiceEnabled] = useState(true);
@@ -21,6 +23,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             const { data: {user} } = await supabase.auth.getUser();
 
             if (user) {
+                setUserId(user.id);                
                 const {data} = await supabase
                     .from('profiles')
                     .select('full_name, voice_enabled')
@@ -34,6 +37,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                 else if (user.user_metadata?.display_name) setDisplayName(user.user_metadata.display_name);
                 else setDisplayName(user.email?.split('@')[0] || "User");
             } else {
+                setUserId(null);                
                 setDisplayName('');
             }
         } catch (error) {
@@ -49,14 +53,17 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
             console.log("Auth Event In Context:", event);
             if ( event === 'SIGNED_IN' || event === 'USER_UPDATED') await refreshProfile();
-            else if (event === 'SIGNED_OUT') setDisplayName('');
+            else if (event === 'SIGNED_OUT') {
+                setUserId(null);
+                setDisplayName('');
+            }
         });
 
         return () => authListener.subscription.unsubscribe();
     }, []);
 
     return (
-        <UserContext.Provider value={{ displayName, voiceEnabled, loading, refreshProfile }}>
+        <UserContext.Provider value={{ userId, displayName, voiceEnabled, loading, refreshProfile }}>
             {children}
         </UserContext.Provider>
     );

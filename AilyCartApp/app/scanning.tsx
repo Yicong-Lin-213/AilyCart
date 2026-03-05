@@ -154,7 +154,7 @@ export default function Scanning() {
                                         })}
                                         style={tw`bg-aily-green p-4 rounded-[15px] shadow-lg border-2 border-aily-secondary`}
                                     >
-                                        <Text style={tw`text-white font-atkinson-bold text-aily-body-sm`}>DONE</Text>
+                                        <Text style={tw`text-white font-atkinson-bold text-aily-body-sm uppercase`}>Done</Text>
                                     </TouchableOpacity>
                                 )}
                             </View>
