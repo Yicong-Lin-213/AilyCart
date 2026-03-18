@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "AilyCartApp",
-    "slug": "AilyCartApp",
+    "slug": "ailycart",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -46,6 +46,19 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c7b02cbb-8a12-4cb5-83a1-8a4795055c39"
+      }
+    },
+    "owner": "yicong.lin",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c7b02cbb-8a12-4cb5-83a1-8a4795055c39"
     }
   }
 }
