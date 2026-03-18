@@ -27,6 +27,7 @@ export default function Scanning() {
     const cameraRef = useRef<CameraView>(null);
     const [flash, setFlash] = useState<FlashMode>('off');
     const [frameLayout, setFrameLayout] = useState<FrameLayout | null>(null);
+    const [isCameraActive, setIsCameraActive] = useState(true);
 
     const insets = useSafeAreaInsets();
 
@@ -35,6 +36,7 @@ export default function Scanning() {
             setCapturedUri(null);
             setProcessedUri(null);
             setIsProcessing(false);
+            setIsCameraActive(true);
         }, [])
     );
 
@@ -103,13 +105,16 @@ export default function Scanning() {
         <View style={tw`flex-1 bg-black`}>
             {!capturedUri ? (
                 <>
-                    <CameraView
-                        ref={cameraRef}
-                        style={StyleSheet.absoluteFill}
-                        facing="back"
-                        autofocus="on"
-                        enableTorch={flash === 'on'}
-                        flash={flash} />
+                    {isCameraActive && (
+                        <CameraView
+                            ref={cameraRef}
+                            style={StyleSheet.absoluteFill}
+                            facing="back"
+                            autofocus="on"
+                            enableTorch={flash === 'on'}
+                            flash={flash} 
+                        />
+                    )}
                     <View style={[StyleSheet.absoluteFill, tw`justify-between`]}>
                         {/* Top Bar */}
                         <View style={[tw`flex-row justify-between px-6 mt-4`, { marginTop: insets.top + 10 }]}>
@@ -148,10 +153,14 @@ export default function Scanning() {
                                 </ScrollView>
                                 {capturedImages.length > 0 && (
                                     <TouchableOpacity
-                                        onPress={() => router.push({
-                                            pathname: '/results',
-                                            params: { images: JSON.stringify(capturedImages) }
-                                        })}
+                                        onPress={() => {
+                                            cameraRef.current?.pausePreview();
+                                            router.push({
+                                                pathname: '/results',
+                                                params: { images: JSON.stringify(capturedImages) }
+                                            });
+                                            setTimeout(() => setIsCameraActive(false), 500);
+                                        }}
                                         style={tw`bg-aily-green p-4 rounded-[15px] shadow-lg border-2 border-aily-secondary`}
                                     >
                                         <Text style={tw`text-white font-atkinson-bold text-aily-body-sm uppercase`}>Done</Text>
