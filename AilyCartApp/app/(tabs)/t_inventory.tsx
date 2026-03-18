@@ -5,6 +5,7 @@ import tw from '../../lib/tailwind';
 import { useUser } from '../../context/user-context';
 import { AlertCircle, CheckCircle2, ShoppingCart, Clock, ChevronRight } from 'lucide-react-native';
 import { useFocusEffect } from 'expo-router';
+import ExpandButton from '@/components/ui/expand-button';
 
 interface InventoryItem {
     item_name: string;
@@ -19,6 +20,8 @@ export default function InventoryScreen() {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [items, setItems] = useState<InventoryItem[]>([]);
+    const [showAllLowStock, setShowAllLowStock] = useState(false);
+    const [showAllSufficient, setShowAllSufficient] = useState(false);
 
     const fetchInventory = async () => {
         if (!userId || userId === 'null') {
@@ -135,20 +138,20 @@ export default function InventoryScreen() {
                     {/* Low Stock Section */}
                     <View style={tw`mb-8`}>
                         <View style={tw`flex-row items-center mb-4`}>
-                            <ShoppingCart size={24} color="#D32F2F" />
+                            <ShoppingCart size={24} color={tw.color('aily-red')} />
                             <Text style={tw`text-aily-h2 font-atkinson-bold text-aily-red ml-2`}>Need to Buy</Text>
                         </View>
 
-                        {lowStockItems.map((item, idx) => {
+                        {(showAllLowStock ? lowStockItems : lowStockItems.slice(0, 3)).map((item, idx) => {
                             const daysLeft = getRemainingDays(item.last_purchased_at, item.avg_interval_days);
                             return (
                                 <View key={idx} style={tw`bg-red-50 border-2 border-aily-red rounded-3xl p-5 mb-4 shadow-sm`}>
                                     <View style={tw`flex-row justify-between items-center mb-2`}>
                                         <Text style={tw`text-aily-body-lg font-atkinson-bold text-aily-red flex-1`}>{item.item_name}</Text>
-                                        <AlertCircle size={30} color="#D32F2F" />
+                                        <AlertCircle size={30} color={tw.color('aily-red')} />
                                     </View>
                                     <View style={tw`flex-row items-center`}>
-                                        <Clock size={18} color="#D32F2F" style={tw`mr-1`} />
+                                        <Clock size={18} color={tw.color('aily-red')} style={tw`mr-1`} />
                                         <Text style={tw`text-aily-body-sm text-red-700 font-atkinson-bold`}>
                                             {daysLeft === 0 ? "Out of stock" : `Expected to run out in ${daysLeft} days`}
                                         </Text>
@@ -156,21 +159,29 @@ export default function InventoryScreen() {
                                 </View>
                             );
                         })}
+                        {/* Show All Button */}
+                        {lowStockItems.length > 3 && (
+                            <ExpandButton
+                                onPress={() => setShowAllLowStock(!showAllLowStock)}
+                                isExpanded={showAllLowStock}
+                                count={lowStockItems.length - 3}
+                            />
+                        )}
                     </View>
 
                     {/* Sufficient Section */}
                     <View>
                         <Text style={tw`text-aily-h2 font-atkinson-bold text-aily-primary mb-4`}>In Stock</Text>
-                        {sufficientItems.map((item, idx) => {
+                        {(showAllSufficient ? sufficientItems : sufficientItems.slice(0, 2)).map((item, idx) => {
                             const daysLeft = getRemainingDays(item.last_purchased_at, item.avg_interval_days);
                             return (
                                 <View key={idx} style={tw`bg-white border border-gray-200 rounded-3xl p-5 mb-4 shadow-sm`}>
                                     <View style={tw`flex-row justify-between items-center mb-2`}>
                                         <Text style={tw`text-aily-body-lg font-atkinson-bold text-aily-green flex-1`}>{item.item_name}</Text>
-                                        <CheckCircle2 size={30} color="#2E7D32" />
+                                        <CheckCircle2 size={30} color={tw.color('aily-green')} />
                                     </View>
                                     <View style={tw`flex-row items-center`}>
-                                        <Clock size={18} color="#595959" style={tw`mr-1`} />
+                                        <Clock size={18} color={tw.color('aily-secondary')} style={tw`mr-1`} />
                                         <Text style={tw`text-aily-body-sm text-aily-secondary font-atkinson`}>
                                             Approximately {daysLeft} days remaining
                                         </Text>
@@ -178,6 +189,14 @@ export default function InventoryScreen() {
                                 </View>
                             );
                         })}
+                        {/* Show All Button */}
+                        {sufficientItems.length > 2 && (
+                            <ExpandButton
+                                onPress={() => setShowAllSufficient(!showAllSufficient)}
+                                isExpanded={showAllSufficient}
+                                count={sufficientItems.length - 2}
+                            />
+                        )}
                     </View>
                 </>
             )}
