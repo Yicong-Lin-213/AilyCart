@@ -112,7 +112,7 @@ export default function Scanning() {
                             facing="back"
                             autofocus="on"
                             enableTorch={flash === 'on'}
-                            flash={flash} 
+                            flash={flash}
                         />
                     )}
                     <View style={[StyleSheet.absoluteFill, tw`justify-between`]}>
@@ -187,10 +187,14 @@ export default function Scanning() {
                             </Text>
                             <Image source={{ uri: processedUri || capturedUri }} style={tw`w-full h-3/4 shadow-2xl rounded-xl`} resizeMode="contain" />
                             <TouchableOpacity
-                                onPress={() => router.push({
-                                    pathname: '/results',
-                                    params: { images: JSON.stringify([processedUri || capturedUri]) }
-                                })}
+                                onPress={() => {
+                                    setIsCameraActive(false);
+
+                                    router.replace({
+                                        pathname: '/results',
+                                        params: { images: JSON.stringify([processedUri || capturedUri]) }
+                                    })
+                                }}
                                 style={tw`bg-aily-blue px-6 py-3 rounded-full mt-8`}>
                                 <Text style={tw`text-aily-bg text-aily-action font-atkinson-bold text-center px-4 py-2`}>Confirm</Text>
                             </TouchableOpacity>

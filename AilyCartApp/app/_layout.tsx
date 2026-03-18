@@ -88,7 +88,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{animation: 'fade'}} />
           <Stack.Screen name="auth" options={{animation: 'none'}} />
           <Stack.Screen name="scanning" options={{presentation: 'fullScreenModal'}} />
-          <Stack.Screen name="results" />
+          <Stack.Screen name="results" options={{presentation: 'fullScreenModal'}}  />
         </Stack>
         <StatusBar style="auto" />
       </UserProvider>

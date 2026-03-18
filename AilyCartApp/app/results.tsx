@@ -172,6 +172,9 @@ export default function Results() {
         }
         finally {
             setLoading(false);
+            if (router.canDismiss()) {
+                router.dismissAll();
+            }
             router.replace("/(tabs)/t_inventory");
         }
     }
