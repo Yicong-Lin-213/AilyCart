@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image, ActivityIndicator, StyleSheet, Dimensions, ScrollView } from 'react-native';
+import { View, TouchableOpacity, Image, ActivityIndicator, StyleSheet, Dimensions, ScrollView } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import React, { useState, useRef, useCallback } from 'react';
 import tw from '../lib/tailwind';
@@ -7,6 +7,7 @@ import * as ImageManipulator from 'expo-image-manipulator';
 import { X, Zap } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTask } from '@/context/task-context';
+import { AilyText as Text } from '@/components/ui/AilyText';
 // import DocumentScanner from 'react-native-document-scanner-plugin';
 
 interface FrameLayout {

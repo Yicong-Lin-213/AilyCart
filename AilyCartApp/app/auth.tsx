@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, TextInput, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { supabase } from '../lib/supabase-client';
 import tw from '../lib/tailwind';
 import { useRouter } from 'expo-router';
 import { User, Mail, Lock, ArrowRight } from 'lucide-react-native';
+import { AilyText as Text } from '@/components/ui/AilyText';
 
 export default function Auth() {
     const router = useRouter();
@@ -80,6 +81,8 @@ export default function Auth() {
                                 placeholder='Your Name'
                                 value={displayName}
                                 onChangeText={setDisplayName}
+                                maxFontSizeMultiplier={1.4}
+                                multiline={true}
                                 style={tw`w-full bg-gray-50 border border-gray-200 rounded-2xl pl-12 pr-4 py-4 text-aily-primary text-aily-body-lg font-atkinson`}
                             />
                         </View>
@@ -93,6 +96,8 @@ export default function Auth() {
                             onChangeText={setEmail}
                             autoCapitalize="none"
                             keyboardType="email-address"
+                            maxFontSizeMultiplier={1.4}
+                            multiline={true}
                             style={tw`w-full bg-gray-50 border border-gray-200 rounded-2xl pl-12 pr-4 py-4 text-aily-primary text-aily-body-lg font-atkinson`}
                         />
                     </View>
@@ -105,6 +110,8 @@ export default function Auth() {
                             onChangeText={setPassword}
                             autoCapitalize="none"
                             secureTextEntry={true}
+                            maxFontSizeMultiplier={1.4}
+                            multiline={true}
                             style={tw`w-full bg-gray-50 border border-gray-200 rounded-2xl pl-12 pr-4 py-4 text-aily-primary text-aily-body-lg font-atkinson`}
                         />
                     </View>

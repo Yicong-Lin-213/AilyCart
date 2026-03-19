@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { supabase } from '../../lib/supabase-client';
 import tw from '../../lib/tailwind';
 import { useUser } from '../../context/user-context';
 import { User, LogOut, ChevronRight, Settings, Bell, ShieldCheck } from 'lucide-react-native';
+import { AilyText as Text } from '@/components/ui/AilyText';
 
 export default function MeTab() {
   const { displayName, loading } = useUser();

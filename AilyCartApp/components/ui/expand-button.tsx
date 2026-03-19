@@ -1,7 +1,8 @@
 import React from 'react';
-import { TouchableOpacity, Text } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import tw from '../../lib/tailwind';
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
+import { AilyText as Text } from '@/components/ui/AilyText';
 
 interface ExpandButtonProps {
     onPress: () => void;

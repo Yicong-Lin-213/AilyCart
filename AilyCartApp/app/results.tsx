@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, Platform } from 'react-native';
+import { View, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import tw from '../lib/tailwind';
 import { useEffect, useState } from 'react';
@@ -7,6 +7,7 @@ import { useUser } from '../context/user-context';
 import * as Speech from 'expo-speech';
 import { VoiceButton } from '@/components/ui/voice-button';
 import { useTask } from '@/context/task-context';
+import { AilyText as Text } from '@/components/ui/AilyText';
 
 export default function Results() {
     const router = useRouter();
@@ -147,6 +148,8 @@ export default function Results() {
             <View style={tw`mb-6`}>
                 <TextInput style={tw`text-aily-h2 font-atkinson-bold text-aily-primary`}
                     value={receiptData?.merchant?.name || ""}
+                    maxFontSizeMultiplier={1.4}
+                    multiline={true}
                     onChangeText={(text) => setReceiptData(prev => prev ? { ...prev, merchant: { ...prev?.merchant, name: text } } : null)}
                 />
                 {receiptData && receiptData.merchant?.name && (<View style={tw`mb-6`}>
@@ -187,6 +190,8 @@ export default function Results() {
                             <TextInput
                                 style={tw`text-aily-body-lg font-atkinson text-aily-primary`}
                                 value={item.name}
+                                maxFontSizeMultiplier={1.4}
+                                multiline={true}
                                 onChangeText={(text) => handleNameChange(text, index)}
                                 placeholder="Item Name"
                             />
@@ -196,6 +201,8 @@ export default function Results() {
                             <TextInput
                                 style={tw`text-aily-body-lg font-atkinson-bold text-aily-primary`}
                                 value={item.total_price.toFixed(2)}
+                                maxFontSizeMultiplier={1.4}
+                                multiline={true}
                                 onChangeText={(text) => handlePriceChange(text, index)}
                                 keyboardType='numeric'
                             />

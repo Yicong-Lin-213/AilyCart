@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, TouchableOpacity, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
 import tw from '../../lib/tailwind';
 import { Camera, Zap, Info } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
+import { AilyText as Text } from '@/components/ui/AilyText';
 
 export default function ScanTab() {
   const router = useRouter();

@@ -1,5 +1,5 @@
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Stack, Slot, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { useFonts, AtkinsonHyperlegible_400Regular, AtkinsonHyperlegible_700Bold } from '@expo-google-fonts/atkinson-hyperlegible';
@@ -9,7 +9,7 @@ import { supabase } from '../lib/supabase-client';
 import { Session } from '@supabase/supabase-js';
 import { UserProvider } from '../context/user-context';
 import tw from '../lib/tailwind';
-import { View, ActivityIndicator, Text } from 'react-native';
+import { View, ActivityIndicator, TextInput } from 'react-native';
 import { TaskProvider, useTask } from '@/context/task-context';
 import { GlobalStatusBar } from '@/components/ui/global-statusbar';
 
@@ -18,6 +18,12 @@ export const unstable_settings = {
 };
 
 SplashScreen.preventAutoHideAsync();
+
+if ((TextInput as any).defaultProps) {
+  (TextInput as any).defaultProps.maxFontSizeMultiplier = 1.4;
+} else {
+  (TextInput as any).defaultProps = { maxFontSizeMultiplier: 1.4 };
+}
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({

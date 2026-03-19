@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
 import { supabase } from '../../lib/supabase-client';
 import tw from '../../lib/tailwind';
 import { useUser } from '../../context/user-context';
 import { AlertCircle, CheckCircle2, ShoppingCart, Clock, ChevronRight } from 'lucide-react-native';
 import { useFocusEffect } from 'expo-router';
 import ExpandButton from '@/components/ui/expand-button';
+import { AilyText as Text } from '@/components/ui/AilyText';
 
 interface InventoryItem {
     item_name: string;

@@ -1,9 +1,10 @@
 // components/GlobalStatusBar.tsx
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTask } from '@/context/task-context';
 import tw from '@/lib/tailwind';
 import { ChevronRight, CheckCircle2, AlertCircle } from 'lucide-react-native';
+import { AilyText as Text } from '@/components/ui/AilyText';
 
 export function GlobalStatusBar() {
   const { status, progressText, resetTask } = useTask();
