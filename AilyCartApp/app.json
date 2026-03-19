@@ -10,7 +10,11 @@
     "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.ailycart.ailycartapp",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "AilyCart needs to hear your voice to check prices and items.",
+        "NSSpeechRecognitionUsageDescription": "AilyCart uses speech recognition to understand your requests."
+      }
     },
     "android": {
       "package": "com.ailycart.ailycartapp",

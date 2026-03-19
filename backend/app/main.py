@@ -1,13 +1,14 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from openai import OpenAI
 from dotenv import load_dotenv
 from typing import Optional, List
 import os
-
+from groq import Groq
 from app.services.ocr import analyze_receipt
 from app.services.data_cleaner import DataCleaner
+from app.services.tts import processAudio
 
 load_dotenv()
 app = FastAPI(title="AilyCart Backend")
@@ -29,9 +30,19 @@ class ArchiveReceiptRequest(BaseModel):
     receipt_data: dict
     name_mapping: Optional[dict] = None
 
+class AudioProcessRequest(BaseModel):
+    user_id: Optional[str] = None
+    audio: UploadFile = File(...)
+
 @app.get("/")
 def read_root():
     return {"status": "ok", "message": "Backend is running!"}
+
+@app.post("/api/v1/process-audio")
+async def process_audio(audio: UploadFile = File(...), user_id: Optional[str] = Form(None)):
+    print("Processing audio...")
+    result = await processAudio(audio, user_id)
+    return result
 
 @app.post("/api/v1/archive-receipt")
 async def archive_receipt(request: ArchiveReceiptRequest):
