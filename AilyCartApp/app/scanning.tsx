@@ -6,6 +6,7 @@ import { CameraView, useCameraPermissions, FlashMode } from 'expo-camera';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { X, Zap } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTask } from '@/context/task-context';
 // import DocumentScanner from 'react-native-document-scanner-plugin';
 
 interface FrameLayout {
@@ -28,7 +29,9 @@ export default function Scanning() {
     const [flash, setFlash] = useState<FlashMode>('off');
     const [frameLayout, setFrameLayout] = useState<FrameLayout | null>(null);
     const [isCameraActive, setIsCameraActive] = useState(true);
-
+    
+    const { startTask } = useTask();
+    
     const insets = useSafeAreaInsets();
 
     useFocusEffect(
@@ -155,10 +158,12 @@ export default function Scanning() {
                                     <TouchableOpacity
                                         onPress={() => {
                                             cameraRef.current?.pausePreview();
-                                            router.push({
-                                                pathname: '/results',
-                                                params: { images: JSON.stringify(capturedImages) }
-                                            });
+                                            startTask(capturedImages);
+                                            // router.push({
+                                            //     pathname: '/results',
+                                            //     params: { images: JSON.stringify(capturedImages) }
+                                            // });
+                                            router.replace('/(tabs)/t_inventory');
                                             setTimeout(() => setIsCameraActive(false), 500);
                                         }}
                                         style={tw`bg-aily-green p-4 rounded-[15px] shadow-lg border-2 border-aily-secondary`}

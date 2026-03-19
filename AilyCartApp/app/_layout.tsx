@@ -9,7 +9,9 @@ import { supabase } from '../lib/supabase-client';
 import { Session } from '@supabase/supabase-js';
 import { UserProvider } from '../context/user-context';
 import tw from '../lib/tailwind';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Text } from 'react-native';
+import { TaskProvider, useTask } from '@/context/task-context';
+import { GlobalStatusBar } from '@/components/ui/global-statusbar';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -84,13 +86,16 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <UserProvider>
-        <Stack screenOptions={{ headerShown: false }} initialRouteName="(tabs)">
-          <Stack.Screen name="(tabs)" options={{animation: 'fade'}} />
-          <Stack.Screen name="auth" options={{animation: 'none'}} />
-          <Stack.Screen name="scanning" options={{presentation: 'fullScreenModal'}} />
-          <Stack.Screen name="results" options={{presentation: 'fullScreenModal'}}  />
-        </Stack>
-        <StatusBar style="auto" />
+        <TaskProvider>
+          <Stack screenOptions={{ headerShown: false }} initialRouteName="(tabs)">
+            <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
+            <Stack.Screen name="auth" options={{ animation: 'none' }} />
+            <Stack.Screen name="scanning" options={{ presentation: 'fullScreenModal' }} />
+            <Stack.Screen name="results" options={{ presentation: 'fullScreenModal' }} />
+          </Stack>
+          {/* <StatusBar style="auto" translucent={true} /> */}
+          <GlobalStatusBar />
+        </TaskProvider>
       </UserProvider>
     </SafeAreaProvider>
   );

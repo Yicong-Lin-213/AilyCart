@@ -2,31 +2,20 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, TextInput,
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import tw from '../lib/tailwind';
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase-client';
-import { File } from 'expo-file-system';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useUser } from '../context/user-context';
 import * as Speech from 'expo-speech';
 import { VoiceButton } from '@/components/ui/voice-button';
-
-interface ReceiptData {
-    merchant: { name: string | null; address: string | null; phone: string | null };
-    transaction: { date: string; time: string; receipt_number: string | null };
-    items: { name: string; quantity: number; price_per_unit: number; total_price: number }[];
-    totals: { subtotal: number; tax: number; total: number; currency: string };
-    payment_method: string;
-}
+import { useTask } from '@/context/task-context';
 
 export default function Results() {
     const router = useRouter();
-    const { images } = useLocalSearchParams();
-    const [loading, setLoading] = useState(true);
-    const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
-    const [uploadingStatus, setUploadingStatus] = useState("");
     const [originalItemNames, setOriginalItemNames] = useState<string[]>([]);
     const [nameMapping, setNameMapping] = useState<{ [key: string]: string }>({});
     const [showDataPicker, setShowDataPicker] = useState(false);
     const { userId, displayName, voiceEnabled } = useUser();
+
+    const { receiptData, status, progressText, resetTask, setReceiptData } = useTask();
 
     // Track which item is currently being spoken, -1 for summary and null for none
     const [playingIndex, setPlayingIndex] = useState<number | null>(null);
@@ -38,54 +27,6 @@ export default function Results() {
         }
         return new Date();
     }
-
-    const processImages = async () => {
-        console.log("Processing images:", images);
-        try {
-            setLoading(true);
-            const imagePaths = JSON.parse(images as string);
-
-            setUploadingStatus("Uploading images...");
-
-            const now = Date.now();
-            const uploadToSupabase = async (uri: string, index: number) => {
-                const fileName = `receipt_${now}_${index}.jpg`;
-                const file = new File(uri);
-                const arrayBuffer = await file.arrayBuffer();
-
-                const { data, error } = await supabase.storage
-                    .from('receipt_images')
-                    .upload(fileName, arrayBuffer, { contentType: 'image/jpeg', upsert: true });
-
-                if (error) throw error;
-
-                const { data: { publicUrl } } = supabase.storage.from('receipt_images').getPublicUrl(data.path);
-                return publicUrl;
-            };
-
-            const uploadedUrls = await Promise.all(
-                imagePaths.map(async (uri: string, index: number) => uploadToSupabase(uri, index))
-            )
-
-            setUploadingStatus("Analyzing receipt...");
-            console.debug("Sending request to backend:", uploadedUrls);
-            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/v1/process-receipt`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image_urls: uploadedUrls }),
-            });
-
-            const data = await response.json();
-            console.debug("Received response from backend:", data.payload);
-            setReceiptData(data.payload);
-
-            setOriginalItemNames(data.items?.map((item: any) => item.name) || []);
-        } catch (error) {
-            console.error("Processing failed", error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleNameChange = (newName: string, index: number) => {
         if (!receiptData) return;
@@ -107,7 +48,8 @@ export default function Results() {
         setReceiptData({ ...receiptData, items: newItems });
     };
 
-    const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    const onDateChange = (event: any, selectedDate?: Date) => {
+        console.debug("Date change event:", event.type, selectedDate);
         if (event.type === 'dismissed') {
             setShowDataPicker(false);
             return;
@@ -117,8 +59,11 @@ export default function Results() {
             if (Platform.OS === 'android') setShowDataPicker(false);
         }
 
+        console.debug("Selected date:", selectedDate);
         const formattedDate = selectedDate?.toISOString().split('T')[0] || "";
+        console.debug("Setting date to:", formattedDate);
         setReceiptData(prev => prev ? { ...prev, transaction: { ...prev.transaction, date: formattedDate } } : null);
+        console.debug("updated date: ", receiptData?.transaction?.date);
     };
 
     const onToggleVoice = (index: number) => {
@@ -156,7 +101,6 @@ export default function Results() {
 
     const onSaveReceipt = async () => {
         try {
-            setUploadingStatus("Archiving receipt...");
             const rsp = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/v1/archive-receipt`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -171,7 +115,7 @@ export default function Results() {
             console.error("Save receipt failed", error);
         }
         finally {
-            setLoading(false);
+            resetTask();
             if (router.canDismiss()) {
                 router.dismissAll();
             }
@@ -180,27 +124,22 @@ export default function Results() {
     }
 
     useEffect(() => {
-        if (images) {
-            processImages();
-        }
-    }, [images]);
-
-    useEffect(() => {
-        if (voiceEnabled && receiptData && receiptData.merchant?.name && !loading) {
+        if (voiceEnabled && receiptData && receiptData.merchant?.name && status === 'success') {
             onToggleVoice(-1);
         }
         return () => {
             Speech.stop();
         }
-    }, [loading, receiptData, voiceEnabled]);
+    }, [status, receiptData, voiceEnabled]);
 
-    if (loading) {
+    if (!receiptData) {
+        console.debug("No receipt data, status:", status, "progressText:", progressText);
         return (
-            <View style={tw`flex-1 bg-aily-bg justify-center items-center`}>
+            <View style={tw`flex-1 justify-center items-center bg-aily-bg`}>
                 <ActivityIndicator size="large" color="#1565C0" />
-                <Text style={tw`text-aily-primary text-aily-body-lg font-atkinson-bold text-center mt-4`}>{uploadingStatus}</Text>
+                <Text style={tw`mt-4`}>Analyzing receipt...</Text>
             </View>
-        )
+        );
     }
 
     return (
@@ -232,9 +171,9 @@ export default function Results() {
                     {showDataPicker && Platform.OS === 'ios' && (
                         <TouchableOpacity
                             onPress={() => setShowDataPicker(false)}
-                            style={tw`mt-2 times-end`}
+                            style={tw`mt-2 items-end`}
                         >
-                            <Text style={tw`text-aily-blue font-atkinson-bold p-2`}>Done</Text>
+                            <Text style={tw`text-aily-blue text-aily-body-sm font-atkinson-bold p-2`}>Done</Text>
                         </TouchableOpacity>
                     )}
                 </View>)}
@@ -242,7 +181,7 @@ export default function Results() {
 
             {/* Goods */}
             <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
-                {receiptData?.items && receiptData?.items.length > 0 ? (receiptData.items.map((item, index) => (
+                {receiptData?.items && receiptData?.items.length > 0 ? (receiptData.items.map((item: any, index: number) => (
                     <View key={index} style={tw`flex-row justify-between py-4 border-b border-gray-100`}>
                         <View style={tw`flex-1`}>
                             <TextInput
@@ -284,7 +223,10 @@ export default function Results() {
 
             {/* Buttons */}
             <View style={tw`flex-row gap-4 w-full`}>
-                <TouchableOpacity style={tw`flex-1 py-5 bg-aily-red rounded-2xl py-4`} onPress={() => router.back()}>
+                <TouchableOpacity style={tw`flex-1 py-5 bg-aily-red rounded-2xl py-4`} onPress={() => {
+                    router.replace('/scanning');
+                    resetTask();
+                }}>
                     <Text style={tw`text-aily-bg text-aily-action font-atkinson-bold text-center uppercase`}>Retake</Text>
                 </TouchableOpacity>
 
