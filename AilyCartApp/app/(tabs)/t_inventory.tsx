@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { View, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
 import { supabase } from '../../lib/supabase-client';
 import tw from '../../lib/tailwind';
@@ -23,6 +23,8 @@ export default function InventoryScreen() {
     const [items, setItems] = useState<InventoryItem[]>([]);
     const [showAllLowStock, setShowAllLowStock] = useState(false);
     const [showAllSufficient, setShowAllSufficient] = useState(false);
+
+    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const fetchInventory = async () => {
         if (!userId || userId === 'null') {
@@ -108,6 +110,16 @@ export default function InventoryScreen() {
     useFocusEffect(
         useCallback(() => {
             fetchInventory();
+            timerRef.current = setInterval(() => {
+                fetchInventory();
+            }, 1000 * 60 * 30); // 30 minutes
+
+            return () => {
+                if (timerRef.current) {
+                    clearInterval(timerRef.current);
+                    timerRef.current = null;
+                }
+            };
         }, [userId])
     );
 
@@ -143,29 +155,29 @@ export default function InventoryScreen() {
                             <Text style={tw`text-aily-h2 font-atkinson-bold text-aily-red ml-2`}>Need to Buy</Text>
                         </View>
 
-                        {(showAllLowStock ? lowStockItems : lowStockItems.slice(0, 3)).map((item, idx) => {
+                        {(showAllLowStock ? lowStockItems : lowStockItems.slice(0, 2)).map((item, idx) => {
                             const daysLeft = getRemainingDays(item.last_purchased_at, item.avg_interval_days);
                             return (
                                 <View key={idx} style={tw`bg-red-50 border-2 border-aily-red rounded-3xl p-5 mb-4 shadow-sm`}>
                                     <View style={tw`flex-row justify-between items-center mb-2`}>
-                                        <Text style={tw`text-aily-body-lg font-atkinson-bold text-aily-red flex-1`}>{item.item_name}</Text>
+                                        <Text style={tw`text-aily-action font-atkinson-bold text-aily-red flex-1`}>{item.item_name}</Text>
                                         <AlertCircle size={30} color={tw.color('aily-red')} />
                                     </View>
                                     <View style={tw`flex-row items-center`}>
                                         <Clock size={18} color={tw.color('aily-red')} style={tw`mr-1`} />
-                                        <Text style={tw`text-aily-body-sm text-red-700 font-atkinson-bold`}>
-                                            {daysLeft === 0 ? "Out of stock" : `Expected to run out in ${daysLeft} days`}
+                                        <Text style={tw`text-aily-body-lg text-red-700 font-atkinson-bold`}>
+                                            {daysLeft === 0 ? "All gone" : `Almost gone, ${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} left.`}
                                         </Text>
                                     </View>
                                 </View>
                             );
                         })}
                         {/* Show All Button */}
-                        {lowStockItems.length > 3 && (
+                        {lowStockItems.length > 2 && (
                             <ExpandButton
                                 onPress={() => setShowAllLowStock(!showAllLowStock)}
                                 isExpanded={showAllLowStock}
-                                count={lowStockItems.length - 3}
+                                count={lowStockItems.length - 2}
                             />
                         )}
                     </View>
@@ -178,12 +190,12 @@ export default function InventoryScreen() {
                             return (
                                 <View key={idx} style={tw`bg-white border border-gray-200 rounded-3xl p-5 mb-4 shadow-sm`}>
                                     <View style={tw`flex-row justify-between items-center mb-2`}>
-                                        <Text style={tw`text-aily-body-lg font-atkinson-bold text-aily-green flex-1`}>{item.item_name}</Text>
+                                        <Text style={tw`text-aily-action font-atkinson-bold text-aily-green flex-1`}>{item.item_name}</Text>
                                         <CheckCircle2 size={30} color={tw.color('aily-green')} />
                                     </View>
                                     <View style={tw`flex-row items-center`}>
                                         <Clock size={18} color={tw.color('aily-secondary')} style={tw`mr-1`} />
-                                        <Text style={tw`text-aily-body-sm text-aily-secondary font-atkinson`}>
+                                        <Text style={tw`text-aily-body-lg text-aily-secondary font-atkinson`}>
                                             Approximately {daysLeft} days remaining
                                         </Text>
                                     </View>
