@@ -29,4 +29,5 @@ jobs:
         run: npm install
 
       - name: 🚀 Publish Update
+        working-directory: ./AilyCartApp
         run: eas update --branch production --message "Auto-update from GitHub Actions"
