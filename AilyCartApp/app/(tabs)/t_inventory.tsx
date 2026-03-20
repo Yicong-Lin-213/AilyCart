@@ -8,7 +8,7 @@ import { useFocusEffect } from 'expo-router';
 import ExpandButton from '@/components/ui/expand-button';
 import { AilyText as Text } from '@/components/ui/AilyText';
 import * as Speech from 'expo-speech';
-import { Audio } from 'expo-av';
+import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
 
 interface InventoryItem {
     item_name: string;
@@ -156,6 +156,17 @@ export default function InventoryScreen() {
             }
 
             const uri = currentRecording.getURI();
+
+            await Audio.setAudioModeAsync({
+                allowsRecordingIOS: false,
+                playsInSilentModeIOS: true,
+                staysActiveInBackground: false,
+                interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+                shouldDuckAndroid: true,
+                interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+                playThroughEarpieceAndroid: false,
+            });
+
             if (uri) {
                 await uploadToBackend(uri);
             }
