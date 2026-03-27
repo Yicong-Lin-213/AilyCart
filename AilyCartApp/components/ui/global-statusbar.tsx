@@ -29,7 +29,7 @@ export function GlobalStatusBar() {
       style={[
         tw`absolute z-50 flex-row items-center px-6 pb-4 pt-4 ${bgColor} shadow-lg border-width-2 rounded-full`,
         {
-          bottom: 20 + (Platform.OS === 'ios' ? 100 : 80),
+          bottom: 10 + (Platform.OS === 'ios' ? 100 : 80),
           right: 20,
           maxWidth: '70%'
         }

@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
-import { View, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, useWindowDimensions } from 'react-native';
+import { View, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, useWindowDimensions, Modal, TextInput } from 'react-native';
 import { supabase } from '../../lib/supabase-client';
 import tw from '../../lib/tailwind';
 import { useUser } from '../../context/user-context';
@@ -16,6 +16,7 @@ interface InventoryItem {
     last_purchased_at: string;
     standard_product_id: string | null;
     avg_interval_days: number; // From the joined view
+    alert_threshold_days: number; // From the inventory_items table
 }
 
 export default function InventoryScreen() {
@@ -28,8 +29,33 @@ export default function InventoryScreen() {
     const [recording, setRecording] = useState<Audio.Recording | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const { width } = useWindowDimensions();
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+    const [tempDays, setTempDays] = useState('14');
 
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    const handleUpdateThreshold = async () => {
+        if (!selectedItem || !userId) return;
+
+        const days = parseInt(tempDays);
+        if (isNaN(days) || days < 1) {
+            alert("Please enter a valid number of days.");
+            return;
+        }
+
+        const {error} = await supabase
+            .from('inventory_items')
+            .update({ alert_threshold_days: days })
+            .match({user_id: userId, item_name: selectedItem.item_name});
+
+        if (error) {
+            console.error("Error updating threshold:", error);
+        } else {
+            setIsModalVisible(false);
+            fetchInventory();
+        }
+    };
 
     const fetchInventory = async () => {
         if (!userId || userId === 'null') {
@@ -57,7 +83,8 @@ export default function InventoryScreen() {
                     item_name,
                     status,
                     last_purchased_at,
-                    standard_product_id
+                    standard_product_id,
+                    alert_threshold_days
                 `)
                 .eq('user_id', userId)
                 .order('last_purchased_at', { ascending: false });
@@ -71,7 +98,7 @@ export default function InventoryScreen() {
                     const rateInfo = ratesData?.find(r => r.unique_key === key);
                     acc.push({
                         ...current,
-                        avg_interval_days: rateInfo?.avg_interval_days || 14
+                        avg_interval_days: rateInfo?.avg_interval_days || current.alert_threshold_days || 14
                     });
                 }
                 return acc;
@@ -271,7 +298,13 @@ export default function InventoryScreen() {
                             {(showAllLowStock ? lowStockItems : lowStockItems.slice(0, 2)).map((item, idx) => {
                                 const daysLeft = getRemainingDays(item.last_purchased_at, item.avg_interval_days);
                                 return (
-                                    <View key={idx} style={tw`bg-red-50 border-2 border-aily-red rounded-3xl p-5 mb-4 shadow-sm`}>
+                                    <TouchableOpacity
+                                        onLongPress={() => {
+                                            setSelectedItem(item);
+                                            setTempDays(item.alert_threshold_days?.toString() || '14');
+                                            setIsModalVisible(true);
+                                        }}
+                                        key={idx} style={tw`bg-red-50 border-2 border-aily-red rounded-3xl p-5 mb-4 shadow-sm`}>
                                         <View style={tw`flex-row justify-between items-center mb-2`}>
                                             <Text style={tw`text-aily-action font-atkinson-bold text-aily-red flex-1`}>{item.item_name}</Text>
                                             <AlertCircle size={30} color={tw.color('aily-red')} />
@@ -282,7 +315,7 @@ export default function InventoryScreen() {
                                                 {daysLeft === 0 ? "All gone" : `Almost gone, ${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} left.`}
                                             </Text>
                                         </View>
-                                    </View>
+                                    </TouchableOpacity>
                                 );
                             })}
                             {/* Show All Button */}
@@ -338,7 +371,7 @@ export default function InventoryScreen() {
             )}
             <View style={[tw`absolute items-center justify-center`,
             {
-                bottom: 20,
+                bottom: 10,
                     left: 20,
                     zIndex: 100
                 }
@@ -365,6 +398,39 @@ export default function InventoryScreen() {
                     </TouchableOpacity>
                 )}
             </View>
+
+            <Modal visible={isModalVisible} transparent animationType="fade">
+                <View style={tw`flex-1 justify-center items-centeer bg-black/50 px-6`}>
+                    <View style={tw`bg-white rounded-3xl p-6 w-full`}>
+                        <Text style={tw`text-aily-h2 font-atkinson-bold text-aily-primary mb-2`}>Set Alert Threshold</Text>
+                        <Text style={tw`text-aily-body-lg mb-2`}>Item: {selectedItem?.item_name}</Text>
+                        <View style={tw`bg-gray-100 rounded-xl px-4 py-3 mb-4`}>
+                            <Text style={tw`text-gray-500 text-aily-body-sm mb-1`}>Days since last purchase to trigger alert</Text>
+                            <TextInput 
+                                style={tw`text-aily-h2 text-aily-blue font-atkinson-bold`}
+                                value={tempDays}
+                                onChangeText={setTempDays}
+                                keyboardType="number-pad"
+                                autoFocus={true}
+                            />
+                        </View>
+                        <View style={tw`flex-row gap-4`}>
+                            <TouchableOpacity
+                                style={tw`flex-1 py-4 bg-gray-200 rounded-xl`}
+                                onPress={() => setIsModalVisible(false)}
+                            >
+                                <Text style={tw`font-atkinson-bold text-center text-aily-body-lg`}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={tw`flex-1 py-4 bg-aily-blue rounded-xl`}
+                                onPress={handleUpdateThreshold}
+                            >
+                                <Text style={tw`font-atkinson-bold text-center text-white text-aily-body-lg`}>Save</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 }
