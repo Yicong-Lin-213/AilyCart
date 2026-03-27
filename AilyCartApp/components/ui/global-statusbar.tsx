@@ -1,5 +1,5 @@
 // components/GlobalStatusBar.tsx
-import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTask } from '@/context/task-context';
 import tw from '@/lib/tailwind';
@@ -27,7 +27,12 @@ export function GlobalStatusBar() {
       activeOpacity={status === 'success' ? 0.8 : 1}
       onPress={handlePress}
       style={[
-        tw`absolute top-0 left-0 right-0 z-50 flex-row items-center px-6 pb-4 pt-12 ${bgColor} shadow-lg border-width-2 border-aily-red`
+        tw`absolute z-50 flex-row items-center px-6 pb-4 pt-4 ${bgColor} shadow-lg border-width-2 rounded-full`,
+        {
+          bottom: 20 + (Platform.OS === 'ios' ? 100 : 80),
+          right: 20,
+          maxWidth: '70%'
+        }
       ]}
     >
       <View style={tw`flex-1 flex-row items-center`}>
@@ -41,6 +46,7 @@ export function GlobalStatusBar() {
         
         <Text 
           maxFontSizeMultiplier={1.3}
+          numberOfLines={1}
           style={tw`text-white font-atkinson-bold text-aily-body-lg`}
         >
           {progressText}
@@ -49,7 +55,7 @@ export function GlobalStatusBar() {
 
       {status === 'success' && (
         <View style={tw`flex-row items-center`}>
-          <Text style={tw`text-white text-aily-body-sm mr-1`}>View</Text>
+          <Text style={tw`text-white text-aily-body-sm mr-1 underline`}>View</Text>
           <ChevronRight size={20} color="white" />
         </View>
       )}

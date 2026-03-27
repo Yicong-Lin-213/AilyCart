@@ -80,7 +80,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
             console.debug("Received response from backend:", result.payload);
             setReceiptData(result.payload);
             setStatus('success');
-            setProgressText('Scan complete! Click to view');
+            setProgressText('Complete!');
 
         } catch (error) {
             console.error(error);

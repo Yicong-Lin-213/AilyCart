@@ -298,7 +298,7 @@ export default function InventoryScreen() {
                         {/* Sufficient Section */}
                         <View>
                             <Text style={tw`text-aily-h2 font-atkinson-bold text-aily-primary mb-4`}>In Stock</Text>
-                            {(showAllSufficient ? sufficientItems : sufficientItems.slice(0, 2)).map((item, idx) => {
+                            {(showAllSufficient ? sufficientItems : sufficientItems.slice(0, 1)).map((item, idx) => {
                                 const daysLeft = getRemainingDays(item.last_purchased_at, item.avg_interval_days);
                                 return (
                                     <View key={idx} style={tw`bg-white border border-gray-200 rounded-3xl p-5 mb-4 shadow-sm`}>
@@ -316,11 +316,11 @@ export default function InventoryScreen() {
                                 );
                             })}
                             {/* Show All Button */}
-                            {sufficientItems.length > 2 && (
+                            {sufficientItems.length > 1 && (
                                 <ExpandButton
                                     onPress={() => setShowAllSufficient(!showAllSufficient)}
                                     isExpanded={showAllSufficient}
-                                    count={sufficientItems.length - 2}
+                                    count={sufficientItems.length - 1}
                                 />
                             )}
                         </View>
@@ -337,7 +337,8 @@ export default function InventoryScreen() {
                 </View>
             )}
             <View style={[tw`absolute items-center justify-center`,
-                { bottom: 20,
+            {
+                bottom: 20,
                     left: 20,
                     zIndex: 100
                 }
