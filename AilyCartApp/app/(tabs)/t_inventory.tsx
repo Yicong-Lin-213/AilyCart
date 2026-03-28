@@ -386,14 +386,14 @@ export default function InventoryScreen() {
                         onPressOut={stopRecording}
                         activeOpacity={0.7}
                         style={[
-                            tw`w-15 h-15 rounded-full items-center justify-center shadow-2xl`,
+                            tw`w-14 h-14 rounded-full items-center justify-center shadow-2xl`,
                             { backgroundColor: recording ? '#EF4444' : '#1565C0' }
                         ]}
                     >
                         {recording ? (
-                            <Square color="white" size={32} fill="white" />
+                            <Square color="white" size={24} fill="white" />
                         ) : (
-                            <Mic color="white" size={32} fill="white" />
+                            <Mic color="white" size={24} fill="white" />
                         )}
                     </TouchableOpacity>
                 )}
