@@ -8,6 +8,8 @@ import * as Speech from 'expo-speech';
 import { VoiceButton } from '@/components/ui/voice-button';
 import { useTask } from '@/context/task-context';
 import { AilyText as Text } from '@/components/ui/AilyText';
+import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
+import { ArrowLeft } from 'lucide-react-native';
 
 export default function Results() {
     const router = useRouter();
@@ -145,17 +147,27 @@ export default function Results() {
 
     return (
         <View style={tw`flex-1 bg-aily-bg p-8 pt-22`}>
-            <View style={tw`mb-6`}>
+            <TouchableOpacity
+                onPress={() => router.back()}
+                style={[
+                    tw`absolute z-50 p-2 bg-white/80 rounded-full shadow-sm`,
+                    { top: Platform.OS === 'ios' ? 60 : 20, left: 20 }
+                ]}
+            >
+                <ArrowLeft size={24} color={tw.color('aily-primary')} />
+            </TouchableOpacity>
+
+            <View style={tw`mb-4 mt-4`}>
                 <TextInput style={tw`text-aily-h2 font-atkinson-bold text-aily-primary`}
                     value={receiptData?.merchant?.name || ""}
                     maxFontSizeMultiplier={1.4}
                     multiline={true}
                     onChangeText={(text) => setReceiptData(prev => prev ? { ...prev, merchant: { ...prev?.merchant, name: text } } : null)}
                 />
-                {receiptData && receiptData.merchant?.name && (<View style={tw`mb-6`}>
+                {receiptData && receiptData.merchant?.name && (<View style={tw`mb-1`}>
                     <TouchableOpacity
                         onPress={() => setShowDataPicker(true)}
-                        style={tw`bg-white pt-4 flex-row justify-between items-center`}
+                        style={tw`bg-white pt-2 flex-row justify-between items-center`}
                     >
                         <Text style={tw`text-aily-body-sm font-atkinson text-aily-secondary`}>
                             {receiptData?.transaction?.date || "Select Date"}
@@ -168,15 +180,16 @@ export default function Results() {
                             display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                             onChange={onDateChange}
                             maximumDate={new Date()}
+                            style={tw`mt-1`}
                         />
                     )}
 
                     {showDataPicker && Platform.OS === 'ios' && (
                         <TouchableOpacity
                             onPress={() => setShowDataPicker(false)}
-                            style={tw`mt-2 items-end`}
+                            style={tw`items-end`}
                         >
-                            <Text style={tw`text-aily-blue text-aily-body-sm font-atkinson-bold p-2`}>Done</Text>
+                            <Text style={tw` bg-aily-blue text-aily-bg text-aily-body-sm font-atkinson-bold mr-5 p-2 rounded-lg uppercase`}>Done</Text>
                         </TouchableOpacity>
                     )}
                 </View>)}

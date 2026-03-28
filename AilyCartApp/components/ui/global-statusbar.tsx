@@ -5,12 +5,15 @@ import { useTask } from '@/context/task-context';
 import tw from '@/lib/tailwind';
 import { ChevronRight, CheckCircle2, AlertCircle } from 'lucide-react-native';
 import { AilyText as Text } from '@/components/ui/AilyText';
+import { useSegments } from 'expo-router';
 
 export function GlobalStatusBar() {
   const { status, progressText, resetTask } = useTask();
   const router = useRouter();
+  const segments = useSegments();
+  const isInventory = segments[0] === '(tabs)' && segments[1] === 't_inventory';
 
-  if (status === 'idle') return null;
+  if (status === 'idle' || !isInventory) return null;
 
   const handlePress = () => {
     console.debug("Status Bar Pressed, current status:", status);
@@ -27,7 +30,7 @@ export function GlobalStatusBar() {
       activeOpacity={status === 'success' ? 0.8 : 1}
       onPress={handlePress}
       style={[
-        tw`absolute z-50 flex-row items-center px-6 pb-4 pt-4 ${bgColor} shadow-lg border-width-2 rounded-full`,
+        tw`absolute z-50 flex-row items-center px-3 pb-4 pt-4 ${bgColor} shadow-lg border-width-2 rounded-full`,
         {
           bottom: 10 + (Platform.OS === 'ios' ? 100 : 80),
           right: 20,
@@ -37,11 +40,11 @@ export function GlobalStatusBar() {
     >
       <View style={tw`flex-1 flex-row items-center`}>
         {status === 'uploading' || status === 'analyzing' ? (
-          <ActivityIndicator size="small" color="white" style={tw`mr-3`} />
+          <ActivityIndicator size="small" color="white" style={tw`mr-2`} />
         ) : status === 'success' ? (
-          <CheckCircle2 size={20} color="white" style={tw`mr-3`} />
+          <CheckCircle2 size={20} color="white" style={tw`mr-2`} />
         ) : (
-          <AlertCircle size={20} color="white" style={tw`mr-3`} />
+          <AlertCircle size={20} color="white" style={tw`mr-2`} />
         )}
         
         <Text 

@@ -52,23 +52,9 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
             const uploadedUrls = await Promise.all(
                 imageUris.map(async (uri: string, index: number) => uploadToSupabase(uri, index))
             )
-            // const uploadedUrls = [];
-            // for (const uri of imageUris) {
-            //     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
-            //     const formData = new FormData();
-            //     formData.append('file', { uri, name: fileName, type: 'image/jpeg' } as any);
-
-            //     const { data, error } = await supabase.storage
-            //         .from('receipt_images')
-            //         .upload(fileName, formData);
-
-            //     if (error) throw error;
-            //     const { data: { publicUrl } } = supabase.storage.from('receipt_images').getPublicUrl(fileName);
-            //     uploadedUrls.push(publicUrl);
-            // }
 
             setStatus('analyzing');
-            setProgressText('AilyCart is reading prices for you...');
+            setProgressText('Reading prices...');
 
             const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/v1/process-receipt`, {
                 method: 'POST',
@@ -80,12 +66,12 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
             console.debug("Received response from backend:", result.payload);
             setReceiptData(result.payload);
             setStatus('success');
-            setProgressText('Complete!');
+            setProgressText('Scan complete!');
 
         } catch (error) {
             console.error(error);
             setStatus('error');
-            setProgressText('Failed, please try again');
+            setProgressText('Failed, try again');
         }
     };
 
