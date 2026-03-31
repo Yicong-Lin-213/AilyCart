@@ -4,7 +4,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import tw from '../lib/tailwind';
 import { CameraView, useCameraPermissions, FlashMode } from 'expo-camera';
 import * as ImageManipulator from 'expo-image-manipulator';
-import { X, Zap } from 'lucide-react-native';
+import { X, Zap, XCircle } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTask } from '@/context/task-context';
 import { AilyText as Text } from '@/components/ui/AilyText';
@@ -30,6 +30,7 @@ export default function Scanning() {
     const [flash, setFlash] = useState<FlashMode>('off');
     const [frameLayout, setFrameLayout] = useState<FrameLayout | null>(null);
     const [isCameraActive, setIsCameraActive] = useState(true);
+    const maxImages = 4;
     
     const { startTask } = useTask();
     
@@ -126,7 +127,7 @@ export default function Scanning() {
                                 <X size={35} color="white" />
                             </TouchableOpacity>
                             <View style={tw`justify-center rounded-full`}>
-                                <Text style={tw`text-aily-bg text-aily-action font-atkinson-bold`}>{capturedImages.length} / 4</Text>
+                                <Text style={tw`text-aily-bg text-aily-action font-atkinson-bold`}>{capturedImages.length} / {maxImages}</Text>
                             </View>
                             <TouchableOpacity onPress={toggleFlash} style={tw`p-2 ${flash !== 'off' ? 'bg-aily-blue' : 'bg-black/40'} rounded-full`}>
                                 <Zap size={35} color="white" fill={flash === 'on' ? 'white' : 'transparent'} />
@@ -150,9 +151,22 @@ export default function Scanning() {
                         {/* Button */}
                         <View style={[tw`mb-12 items-center`, { marginBottom: insets.bottom + 10 }]}>
                             <View style={tw`w-full px-8 items-center flex-row mb-2`}>
-                                <ScrollView horizontal style={tw`flex-row gap-4`} showsHorizontalScrollIndicator={false}>
+                                <ScrollView horizontal style={tw`flex-row gap-4 mr-2`} showsHorizontalScrollIndicator={false}>
                                     {capturedImages.map((uri, i) => (
-                                        <Image key={i} source={{ uri }} style={tw`w-15 h-15 rounded-lg mr-2 border-2 border-white`} />
+                                        <View key={i} style={tw`relative mr-2 w-16 h-16 justify-center items-center`}>
+                                            <Image source={{ uri }} style={tw`w-14 h-14 rounded-lg mr-2 border-2 border-white`} />
+                                            <TouchableOpacity
+                                                onPress={() => {
+                                                    setCapturedImages(prev => prev.filter((_, index) => index !== i));
+                                                }}
+                                                style={[
+                                                    tw`absolute z-10 p-0.5 rounded-full bg-white`,
+                                                    {top: 0, right: 0}
+                                                ]}
+                                            >
+                                                <XCircle size={15} color={tw.color('aily-red')} fill="white"/>
+                                            </TouchableOpacity>
+                                        </View>
                                     ))}
                                 </ScrollView>
                                 {capturedImages.length > 0 && (
@@ -160,25 +174,23 @@ export default function Scanning() {
                                         onPress={() => {
                                             cameraRef.current?.pausePreview();
                                             startTask(capturedImages);
-                                            // router.push({
-                                            //     pathname: '/results',
-                                            //     params: { images: JSON.stringify(capturedImages) }
-                                            // });
                                             router.replace('/(tabs)/t_inventory');
                                             setTimeout(() => setIsCameraActive(false), 500);
                                         }}
                                         style={tw`bg-aily-green p-4 rounded-[15px] shadow-lg border-2 border-aily-secondary`}
                                     >
-                                        <Text style={tw`text-white font-atkinson-bold text-aily-body-sm uppercase`}>Done</Text>
+                                        <Text style={tw`text-white font-atkinson-bold text-aily-body-sm uppercase`}>Upload</Text>
                                     </TouchableOpacity>
                                 )}
                             </View>
+                            {capturedImages.length < maxImages && (
                             <TouchableOpacity
                                 onPress={takeAndProcessPicture}
                                 style={tw`w-20 h-20 bg-white rounded-full border-4 justify-center items-center border-aily-blue`}
                             >
                                 {isProcessing ? <ActivityIndicator size="large" color="#1565C0" /> : <View style={tw`w-16 h-16 bg-aily-blue rounded-full justify-center items-center`} />}
                             </TouchableOpacity>
+                            )}
                         </View>
                     </View>
                 </>
