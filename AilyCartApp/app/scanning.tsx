@@ -8,6 +8,7 @@ import { X, Zap, XCircle } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTask } from '@/context/task-context';
 import { AilyText as Text } from '@/components/ui/AilyText';
+import ImageView from "react-native-image-viewing"
 // import DocumentScanner from 'react-native-document-scanner-plugin';
 
 interface FrameLayout {
@@ -31,6 +32,9 @@ export default function Scanning() {
     const [frameLayout, setFrameLayout] = useState<FrameLayout | null>(null);
     const [isCameraActive, setIsCameraActive] = useState(true);
     const maxImages = 4;
+    const [isViewrVisible, setIsViewerVisible] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const imagesForView = capturedImages.map(uri => ({ uri }));
     
     const { startTask } = useTask();
     
@@ -154,7 +158,15 @@ export default function Scanning() {
                                 <ScrollView horizontal style={tw`flex-row gap-4 mr-2`} showsHorizontalScrollIndicator={false}>
                                     {capturedImages.map((uri, i) => (
                                         <View key={i} style={tw`relative mr-2 w-16 h-16 justify-center items-center`}>
-                                            <Image source={{ uri }} style={tw`w-14 h-14 rounded-lg mr-2 border-2 border-white`} />
+                                            <TouchableOpacity
+                                                onPress={() => {
+                                                    setCurrentImageIndex(i);
+                                                    setIsViewerVisible(true);
+                                                }}
+                                                activeOpacity={0.8}
+                                            >
+                                                <Image source={{ uri }} style={tw`w-14 h-14 rounded-lg mr-2 border-2 border-white shadow-sm`} />
+                                            </TouchableOpacity>
                                             <TouchableOpacity
                                                 onPress={() => {
                                                     setCapturedImages(prev => prev.filter((_, index) => index !== i));
@@ -184,12 +196,12 @@ export default function Scanning() {
                                 )}
                             </View>
                             {capturedImages.length < maxImages && (
-                            <TouchableOpacity
-                                onPress={takeAndProcessPicture}
-                                style={tw`w-20 h-20 bg-white rounded-full border-4 justify-center items-center border-aily-blue`}
-                            >
-                                {isProcessing ? <ActivityIndicator size="large" color="#1565C0" /> : <View style={tw`w-16 h-16 bg-aily-blue rounded-full justify-center items-center`} />}
-                            </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={takeAndProcessPicture}
+                                    style={tw`w-20 h-20 bg-white rounded-full border-4 justify-center items-center border-aily-blue`}
+                                >
+                                    {isProcessing ? <ActivityIndicator size="large" color="#1565C0" /> : <View style={tw`w-16 h-16 bg-aily-blue rounded-full justify-center items-center`} />}
+                                </TouchableOpacity>
                             )}
                         </View>
                     </View>
@@ -220,6 +232,21 @@ export default function Scanning() {
                     )}
                 </View>
             )}
+            <ImageView
+                images={imagesForView}
+                imageIndex={currentImageIndex}
+                visible={isViewrVisible}
+                onRequestClose={() => setIsViewerVisible(false)}
+                swipeToCloseEnabled={true}
+                doubleTapToZoomEnabled={true}
+                FooterComponent={({imageIndex}) => (
+                    <View style={tw`p-8 items-center justify-center`}>
+                        <Text style={tw`text-white font-atkinson-bold text-lg`}>
+                            {imageIndex + 1} / {capturedImages.length}
+                        </Text>
+                    </View>
+                )}
+            />
         </View>
     );
 }
