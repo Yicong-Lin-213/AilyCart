@@ -126,7 +126,30 @@ export default function Results() {
         }
     }
 
+    const configureAudio = async () => {
+        try {
+            await Audio.setAudioModeAsync({
+                allowsRecordingIOS: false,
+                playsInSilentModeIOS: true,
+                staysActiveInBackground: false,
+                interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+                shouldDuckAndroid: true,
+                interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+                playThroughEarpieceAndroid: false,
+            });
+
+            if (Platform.OS === 'ios') {
+                await Audio.setIsEnabledAsync(false);
+                await Audio.setIsEnabledAsync(true);
+            }
+        } catch (error) {
+            console.error("Error configuring audio:", error);
+        }
+    }
+
     useEffect(() => {
+        configureAudio();
+
         if (voiceEnabled && receiptData && receiptData.merchant?.name && status === 'success') {
             onToggleVoice(-1);
         }

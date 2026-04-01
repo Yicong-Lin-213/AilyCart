@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
-import { View, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, useWindowDimensions, Modal, TextInput } from 'react-native';
+import { View, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, useWindowDimensions, Modal, TextInput, Platform } from 'react-native';
 import { supabase } from '../../lib/supabase-client';
 import tw from '../../lib/tailwind';
 import { useUser } from '../../context/user-context';
@@ -34,6 +34,43 @@ export default function InventoryScreen() {
     const [tempDays, setTempDays] = useState('14');
 
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    const playback = async (text: any) => {
+        // This is a workaround, since the audio configuration does not work after recording.
+        const { sound } = await Audio.Sound.createAsync(
+            require('@/assets/sounds/blank.m4a'),
+            { shouldPlay: true, volume: 1.0 }
+        );
+        sound.setOnPlaybackStatusUpdate((status) => {
+            if (status.isLoaded && status.didJustFinish) {
+                sound.unloadAsync();
+            }
+        });
+        Speech.speak(text, { language: 'en-US', rate: 0.9, volume: 1.0 });
+    };
+
+    const configureAudio = async () => {
+        try {
+            await Audio.setIsEnabledAsync(false);
+
+            await Audio.setAudioModeAsync({
+                allowsRecordingIOS: false,
+                interruptionModeIOS: InterruptionModeIOS.DuckOthers,
+                playsInSilentModeIOS: true,
+                staysActiveInBackground: false,
+                shouldDuckAndroid: true,
+                interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
+                playThroughEarpieceAndroid: false,
+            });
+
+            await Audio.setIsEnabledAsync(true);
+            if (Platform.OS === 'ios') {
+                await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
+            }
+        } catch (error) {
+            console.error("Config error:", error);
+        }
+    }
 
     const handleUpdateThreshold = async () => {
         if (!selectedItem || !userId) return;
@@ -155,17 +192,23 @@ export default function InventoryScreen() {
 
             await Audio.setAudioModeAsync({
                 allowsRecordingIOS: true,
+                interruptionModeIOS: InterruptionModeIOS.DoNotMix,
                 playsInSilentModeIOS: true,
+                shouldDuckAndroid: true,
+                interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+                playThroughEarpieceAndroid: false,
             });
+
 
             const newRecording = new Audio.Recording();
             await newRecording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
             await newRecording.startAsync();
             setRecording(newRecording);
-            // setStatusMessage("Listening...")
         } catch (error) {
             console.error("Error starting recording:", error);
             setRecording(null);
+        } finally {
+            setIsProcessing(false);
         }
     }
 
@@ -183,16 +226,7 @@ export default function InventoryScreen() {
             }
 
             const uri = currentRecording.getURI();
-
-            await Audio.setAudioModeAsync({
-                allowsRecordingIOS: false,
-                playsInSilentModeIOS: true,
-                staysActiveInBackground: false,
-                interruptionModeIOS: InterruptionModeIOS.DoNotMix,
-                shouldDuckAndroid: true,
-                interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
-                playThroughEarpieceAndroid: false,
-            });
+            await configureAudio();
 
             if (uri) {
                 await uploadToBackend(uri);
@@ -201,6 +235,7 @@ export default function InventoryScreen() {
             console.error("Error stopping recording:", error);
         } finally {
             setIsProcessing(false);
+            setRecording(null);
         }
     }
 
@@ -231,13 +266,13 @@ export default function InventoryScreen() {
             const result = await response.json();
             console.log("Backend response:", result);
             // if (result.success) {
-                Speech.speak(result.feedback, { language: 'en-US', rate: 0.9 });
+            playback(result.feedback);
             // }
         } catch (error: any) {
             console.error("Error uploading audio:", error);
             if (error.name === 'AbortError') {
                 console.warn("Request aborted due to timeout");
-                Speech.speak("Sorry, the connection timed out.", { language: 'en-US', rate: 0.9 });
+                playback("Sorry, the connection timed out.");
             } else {
                 console.error("Error uploading audio:", error);
             }
@@ -372,9 +407,9 @@ export default function InventoryScreen() {
             <View style={[tw`absolute items-center justify-center`,
             {
                 bottom: 10,
-                    left: 20,
-                    zIndex: 100
-                }
+                left: 20,
+                zIndex: 100
+            }
             ]}>
                 {isProcessing ? (
                     <View style={tw`w-20 h-20 items-center justify-center bg-gray-100 rounded-full`}>
