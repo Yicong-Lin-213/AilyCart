@@ -13,3 +13,6 @@
 *-bk*
 
 *-native*
+
+*/*tests/*
+*.bk

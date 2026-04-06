@@ -1,1 +1,0 @@
-export const SCAN_PHASES = {HELLO: 1, SCANNING: 2, PROCESSING: 3, RESULT: 4};
