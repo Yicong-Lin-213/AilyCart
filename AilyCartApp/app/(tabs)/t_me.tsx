@@ -206,7 +206,7 @@ export default function MeTab() {
 
       {/* Build Info */}
       <Text style={tw`text-center text-aily-body-sm text-gray-400 mt-12`}>
-        AilyCart Version 1.0.2 • Production Build
+        AilyCart Version 1.0.3 • Production Build
       </Text>
     </ScrollView>
   );

@@ -22,10 +22,10 @@ Experience **AilyCart** instantly by scanning the corresponding QR code for your
 
 <div align="center">
 
-| 🍎 iOS | 🤖 Android |
-| :---: | :---: |
-| <img src="./docs/expo-ios-qr.svg" width="220" alt="iOS QR Code"> | <img src="./docs/expo-android-qr.svg" width="220" alt="Android QR Code"> |
-| *Scan with iOS Camera* | *Scan with Expo Go App* |
+| 📲 iOS & Android |
+| :---: |
+| <img src="https://qr.expo.dev/expo-go?owner=yicong-lin-213&slug=ailycart&destination=exp%3A%2F%2Fu.expo.dev%2Fc7b02cbb-8a12-4cb5-83a1-8a4795055c39%3Fchannel-name%3Dproduction" width="280" alt="Universal Expo Go QR Code"> |
+| *Scan with iOS Camera or Android Expo Go App* |
 
 </div>
 
