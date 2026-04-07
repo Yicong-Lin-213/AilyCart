@@ -78,7 +78,7 @@ AilyCart utilizes a modern full-stack architecture designed for performance and 
 
 2. **Frontend Setup**
    ```bash
-   cd frontend
+   cd AilyCartApp
    npm install
    npx expo start
    ```
