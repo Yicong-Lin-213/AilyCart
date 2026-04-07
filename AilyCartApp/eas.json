@@ -1,5 +1,4 @@
 {
-  "__license__": "Copyright (c) 2026 Yicong Lin. Licensed under Apache-2.0.",
   "cli": {
     "version": ">= 18.0.5",
     "appVersionSource": "remote"
