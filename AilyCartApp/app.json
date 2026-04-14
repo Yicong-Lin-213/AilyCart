@@ -1,7 +1,7 @@
 {
   "__license__": "Copyright (c) 2026 Yicong Lin. Licensed under Apache-2.0.",
   "expo": {
-    "name": "AilyCartApp",
+    "name": "AilyCart",
     "slug": "ailycart",
     "version": "1.0.0",
     "orientation": "portrait",
