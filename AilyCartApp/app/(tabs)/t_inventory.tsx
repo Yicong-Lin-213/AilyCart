@@ -23,6 +23,7 @@ import ExpandButton from '@/components/ui/expand-button';
 import { AilyText as Text } from '@/components/ui/AilyText';
 import * as Speech from 'expo-speech';
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface InventoryItem {
     item_name: string;
@@ -46,6 +47,7 @@ export default function InventoryScreen() {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
     const [tempDays, setTempDays] = useState('14');
+    const [showTip, setShowTip] = useState(false);
 
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -295,6 +297,19 @@ export default function InventoryScreen() {
         }
     }
 
+    const checkFirstTime = async () => {
+        const learnt = await AsyncStorage.getItem('learntMicTip');
+        if (!learnt) {
+            setShowTip(true);
+            setTimeout( () => setShowTip(false), 120000); // hide tip in 2 minutes
+        }
+    }
+
+    const dismissTip = async () => {
+        setShowTip(false);
+        await AsyncStorage.setItem('hasSeenMicTip', 'true');
+    };
+
     useFocusEffect(
         useCallback(() => {
             fetchInventory();
@@ -310,6 +325,10 @@ export default function InventoryScreen() {
             };
         }, [userId])
     );
+
+    useEffect(() => {
+        checkFirstTime();
+    }, []);
 
     // Helper to calculate remaining days
     const getRemainingDays = (lastPurchased: string, avgInterval: number) => {
@@ -448,8 +467,39 @@ export default function InventoryScreen() {
                 )}
             </View>
 
+            {showTip && (
+                <TouchableOpacity
+                    activeOpacity={1}
+                    onPress={dismissTip}
+                    style={[
+                        tw`absolute bg-aily-blue px-4 py-3 rounded-2xl shadow-xl`,
+                        {
+                            bottom: 90,
+                            left: 20,
+                            maxWidth: 220,
+                            zIndex: 101
+                        }
+                    ]}
+                >
+                    <Text style={tw`text-white font-atkinson-bold text-aily-body-sm leading-6`}>
+                        NEW: Hold this button to ask Aily about your stock!
+                    </Text>
+                    <View
+                        style={[
+                            tw`absolute bg-aily-blue w-4 h-4`,
+                            {
+                                bottom: -6,
+                                left: 25,
+                                transform: [{rotate: '45deg'}],
+                                zIndex: -1
+                            }
+                        ]}
+                    />
+                </TouchableOpacity>
+            )}
+
             <Modal visible={isModalVisible} transparent animationType="fade">
-                <View style={tw`flex-1 justify-center items-centeer bg-black/50 px-6`}>
+                <View style={tw`flex-1 justify-center items-center bg-black/50 px-6`}>
                     <View style={tw`bg-white rounded-3xl p-6 w-full`}>
                         <Text style={tw`text-aily-h2 font-atkinson-bold text-aily-primary mb-2`}>Set Alert Threshold</Text>
                         <Text style={tw`text-aily-body-lg mb-2`}>Item: {selectedItem?.item_name}</Text>
