@@ -32,6 +32,7 @@ interface InventoryItem {
     standard_product_id: string | null;
     avg_interval_days: number; // From the joined view
     alert_threshold_days: number; // From the inventory_items table
+    unit_price: number;
 }
 
 export default function InventoryScreen() {
@@ -43,7 +44,6 @@ export default function InventoryScreen() {
     const [showAllSufficient, setShowAllSufficient] = useState(false);
     const [recording, setRecording] = useState<Audio.Recording | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
-    const { width } = useWindowDimensions();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
     const [tempDays, setTempDays] = useState('14');
@@ -137,7 +137,8 @@ export default function InventoryScreen() {
                     status,
                     last_purchased_at,
                     standard_product_id,
-                    alert_threshold_days
+                    alert_threshold_days,
+                    unit_price
                 `)
                 .eq('user_id', userId)
                 .order('last_purchased_at', { ascending: false });
@@ -377,6 +378,13 @@ export default function InventoryScreen() {
                                             <Text style={tw`text-aily-action font-atkinson-bold text-aily-red flex-1`}>{item.item_name}</Text>
                                             <AlertCircle size={30} color={tw.color('aily-red')} />
                                         </View>
+                                        <View style={tw`flex-row items-center mt-1`}>
+                                            <Text style={tw`text-gray-500 text-aily-body-sm`}>
+                                                {item.unit_price ? `$${item.unit_price.toFixed(2)}` : 'No price'}
+                                            </Text>
+                                            <Text style={tw`text-gray-400 text-[10px] mx-2`}>•</Text>
+                                            <Text style={tw`text-gray-500 text-aily-body-sm`}>Last purchased</Text>
+                                        </View>
                                         <View style={tw`flex-row items-center`}>
                                             <Clock size={18} color={tw.color('aily-red')} style={tw`mr-1`} />
                                             <Text style={tw`text-aily-body-lg text-red-700 font-atkinson-bold`}>
@@ -406,6 +414,13 @@ export default function InventoryScreen() {
                                         <View style={tw`flex-row justify-between items-center mb-2`}>
                                             <Text style={tw`text-aily-action font-atkinson-bold text-aily-green flex-1`}>{item.item_name}</Text>
                                             <CheckCircle2 size={30} color={tw.color('aily-green')} />
+                                        </View>
+                                        <View style={tw`flex-row items-center mt-1`}>
+                                            <Text style={tw`text-gray-500 text-aily-body-sm`}>
+                                                {item.unit_price ? `$${item.unit_price.toFixed(2)}` : 'No price'}
+                                            </Text>
+                                            <Text style={tw`text-gray-400 text-[10px] mx-2`}>•</Text>
+                                            <Text style={tw`text-gray-500 text-aily-body-sm`}>Last purchased</Text>
                                         </View>
                                         <View style={tw`flex-row items-center`}>
                                             <Clock size={18} color={tw.color('aily-secondary')} style={tw`mr-1`} />
