@@ -1,0 +1,278 @@
+<!--
+ Copyright 2026 Yicong Lin
+ 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+     https://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AilyCart | Ethan Lin - NIC Grad Show 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'aily-bg': '#FFFFFF',
+                        'aily-primary': '#1A1A1A',
+                        'aily-secondary': '#595959',
+                        'aily-blue': '#1565C0',
+                        'aily-red': '#D32F2F',
+                        'aily-green': '#2E7D32',
+                    },
+                    fontSize: {
+                        'aily-h1': '2rem',
+                        'aily-h2': '1.5rem',
+                        'aily-action': '1.375rem',
+                        'aily-body-lg': '1.25rem',
+                        'aily-body-sm': '1.125rem',
+                    },
+                    fontFamily: {
+                        'atkinson': ['Atkinson Hyperlegible', 'sans-serif'],
+                    },
+                    letterSpacing: {
+                        'tightest': '0.03em',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Atkinson Hyperlegible', sans-serif;
+            font-size: 1.25rem;
+        }
+
+        .grad-glow {
+            box-shadow: 0 0 50px -10px rgba(21, 101, 192, 0.3);
+        }
+
+        .breath-led {
+            animation: pulse-led 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse-led {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: .7;
+                transform: scale(0.95);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-aily-bg text-aily-primary leading-relaxed">
+
+    <nav class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center border-b-2 border-slate-50">
+        <div class="flex items-center gap-4">
+            <img src="AilyCartApp/assets/images/logo-notext.png" alt="AilyCart" class="w-12 h-12">
+            <div>
+                <span class="text-aily-h2 font-bold tracking-tightest text-aily-blue">AilyCart</span>
+                <p class="text-[10px] font-black text-aily-secondary uppercase tracking-[0.3em]">NIC Graduate Showcase
+                    2026</p>
+            </div>
+        </div>
+        <div class="flex gap-4">
+            <a href="https://github.com/Yicong-Lin-213/AilyCart"
+                class="bg-aily-primary text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-aily-blue transition-all">GitHub</a>
+            <a href="https://www.linkedin.com/in/yicong-lin"
+                class="bg-slate-100 text-aily-primary px-4 py-2 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all">LinkedIn</a>
+        </div>
+    </nav>
+
+    <header class="max-w-7xl mx-auto px-6 pt-12 pb-20 grid lg:grid-cols-2 gap-12 items-center">
+        <div class="flex flex-col items-center">
+            <div
+                class="relative z-10 w-full max-w-[360px] border-[4px] border-aily-blue border-slate-50 rounded-[1.2rem] overflow-hidden grad-glow bg-white flex flex-col items-center justify-center">
+
+                <video autoplay muted loop playsinline class="w-full h-auto">
+                    <!-- <source src="ailycart-usage.mp4" type="video/mp4"> -->
+                </video>
+
+                <div class="flex-grow flex items-center justify-center p-6 w-full">
+                    <p class="text-aily-blue text-center font-bold">
+                        Demo Video Under Construction...
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="mt-8 flex gap-4">
+                <div
+                    class="breath-led flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md border border-slate-100">
+                    <span class="w-2.5 h-2.5 rounded-full bg-aily-green"></span>
+                    <span class="text-xs font-bold uppercase tracking-tighter">FastAPI</span>
+                </div>
+                <div class="breath-led flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md border border-slate-100"
+                    style="animation-delay: 0.3s">
+                    <span class="w-2.5 h-2.5 rounded-full bg-aily-green"></span>
+                    <span class="text-xs font-bold uppercase tracking-tighter">Groq Whisper</span>
+                </div>
+                <div class="breath-led flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md border border-slate-100"
+                    style="animation-delay: 0.6s">
+                    <span class="w-2.5 h-2.5 rounded-full bg-aily-green"></span>
+                    <span class="text-xs font-bold uppercase tracking-tighter">Supabase RLS</span>
+                </div>
+            </div>
+        </div>
+        <div class="space-y-8">
+            <div
+                class="inline-block bg-blue-50 text-aily-blue px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest">
+                Capstone Project
+            </div>
+            <h1 class="text-6xl lg:text-8xl font-extrabold leading-[0.9] tracking-tighter text-aily-blue">
+                AilyCart
+            </h1>
+            <h2 class="text-aily-h2 lg:text-4xl font-extrabold mb-6 text-aily-primary">An AI-powered accessibility
+                assistant</h2>
+            <p class="text-aily-body-lg text-aily-secondary font-medium leading-relaxed max-w-xl">
+                Bridging the data gap for seniors using AI to turn physical receipts into audible, high-contrast digital
+                inventory.
+            </p>
+
+            <!--
+            <div class="flex gap-6 border-l-4 border-aily-blue pl-6 py-2">
+                <div>
+                    <p class="text-sm font-black uppercase text-aily-secondary">Precision</p>
+                    <p class="text-xl font-bold italic">99% OCR</p>
+                </div>
+                <div class="w-px bg-slate-200"></div>
+                <div>
+                    <p class="text-sm font-black uppercase text-aily-secondary">Latency</p>
+                    <p class="text-xl font-bold italic">< 500ms</p>
+                </div>
+                <div class="w-px bg-slate-200"></div>
+                <div>
+                    <p class="text-sm font-black uppercase text-aily-secondary">Accessibility</p>
+                    <p class="text-xl font-bold italic">WCAG 2.1 AA</p>
+                </div>
+            </div>
+            -->
+        </div>
+    </header>
+
+    <section class="bg-aily-blue py-16 text-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8">
+                    <h2 class="text-5xl font-extrabold mb-6">Scan & Experience</h2>
+                    <p class="text-blue-100 mb-8">
+                        Grad Show Live Demo: See how AilyCart handles real-world unstructured data in seconds.
+                    </p>
+                    <div class="space-y-6">
+                        <div class="flex gap-5 items-start">
+                            <span
+                                class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center font-bold text-lg shadow-inner">1</span>
+                            <div>
+                                <p class="text-aily-h2 font-bold">Prepare Environment</p>
+                                <p class="text-blue-100 text-aily-body-sm opacity-80 font-medium">Download the <span
+                                        class="font-bold decoration-white">Expo Go</span> app for your OS.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-5 items-start">
+                            <span
+                                class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center font-bold text-lg shadow-inner">2</span>
+                            <div>
+                                <p class="text-aily-h2 font-bold">Launch AilyCart</p>
+                                <p class="text-blue-100 text-aily-body-sm opacity-80 font-medium">Scan the project code
+                                    to load the live demo instantly.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+                    <div
+                        class="bg-white p-8 rounded-[2rem] shadow-2xl flex flex-col items-left border border-slate-100">
+                        <p
+                            class="text-aily-blue font-black text-xs uppercase tracking-[0.2em] mb-8 px-4 py-1.5 bg-blue-100 rounded-xl italic">
+                            Step 1: <br />Get Expo Go
+                        </p>
+
+                        <div class="grid grid-cols-2 md:grid-cols-2 gap-4 w-full">
+
+                            <div class="text-center">
+                                <img src="docs/expo-go-ios.png"
+                                    class="w-full aspect-square grayscale hover:grayscale-0 transition-all" alt="iOS">
+                                <span class="text-[10px] font-black text-aily-secondary uppercase">iOS</span>
+                            </div>
+
+                            <div class="hidden md:flex items-start justify-center overflow-hidden">
+                                <img src="AilyCartApp/assets/images/logo-notext.png"
+                                    class="w-full aspect-square opacity-10" alt="AilyCart Watermark">
+                            </div>
+
+                            <div class="hidden md:flex items-start justify-center overflow-hidden">
+                                <img src="AilyCartApp/assets/images/logo-notext.png"
+                                    class="w-full aspect-square opacity-10" alt="AilyCart Watermark">
+                            </div>
+
+                            <div class="text-center">
+                                <img src="docs/expo-go-android.png"
+                                    class="w-full aspect-square grayscale hover:grayscale-0 transition-all"
+                                    alt="Android">
+                                <span class="text-[10px] font-black text-aily-secondary uppercase">Android</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-white p-8 rounded-[2rem] shadow-2xl flex flex-col items-left border-4 border-aily-green">
+                        <p
+                            class="text-aily-green font-black text-xs uppercase tracking-[0.2em] mb-8 px-4 py-1.5 bg-green-50 rounded-xl italic">
+                            Step 2: <br />Scan Project</p>
+                        <img src="docs/LiveDemo.png" class="w-full aspect-square mb-2" alt="AilyCart Demo">
+                        <p
+                            class="text-aily-primary font-bold text-[10px] text-center uppercase tracking-widest leading-tight opacity-60">
+                            Scan with iOS Camera or Android Expo Go App</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-aily-primary text-white py-12">
+        <div class="max-w-7xl mx-auto px-6 flex flex-row items-center justify-between gap-8">
+            <div class="flex items-center gap-6 flex-shrink-0">
+                <img src="AilyCartApp/assets/images/logo.png" alt="AilyCart Full Logo"
+                    class="w-16 h-16 rounded-xl bg-white p-1">
+            </div>
+
+            <div class="flex flex-col items-end gap-2 min-w-0">
+                <p class="text-slate-500 text-aily-body-sm italic border-b pb-2 border-slate-800">
+                    "Leveraging decades of system sensitivity to build accessible software."
+                </p>
+                <div
+                    class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 text-xs text-slate-600 whitespace-nowrap">
+                    <span>© 2026 Yicong Lin</span>
+                    <span>
+                        <span class="hidden md:inline">• </span>North Island College Graduate Showcase
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

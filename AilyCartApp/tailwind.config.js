@@ -22,13 +22,6 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'primary-text': '#1A1A1A',
-        'secondary': '#595959',
-        'background': '#FFFFFF',
-        'action-btn': '#1565C0',
-        'alert-red': '#D32F2F',
-        'success-green': '#2E7D32',
-
         'aily-bg': '#FFFFFF',
         'aily-primary': '#1A1A1A',
         'aily-secondary': '#595959',
