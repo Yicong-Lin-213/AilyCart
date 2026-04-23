@@ -125,7 +125,6 @@ export default function Auth() {
                             autoCapitalize="none"
                             secureTextEntry={true}
                             maxFontSizeMultiplier={1.4}
-                            multiline={true}
                             style={tw`w-full bg-gray-50 border border-gray-200 rounded-2xl pl-12 pr-4 py-4 text-aily-primary text-aily-body-lg font-atkinson`}
                         />
                     </View>

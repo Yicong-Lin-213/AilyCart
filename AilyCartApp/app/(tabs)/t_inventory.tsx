@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import React, { useRef, useState, useCallback, useEffect } from 'react';
-import { View, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, useWindowDimensions, Modal, TextInput, Platform } from 'react-native';
+import { View, ScrollView, RefreshControl, ActivityIndicator, TouchableOpacity, Modal, TextInput, Platform } from 'react-native';
 import { supabase } from '../../lib/supabase-client';
 import tw from '../../lib/tailwind';
 import { useUser } from '../../context/user-context';
-import { AlertCircle, CheckCircle2, ShoppingCart, Clock, ChevronRight, Mic, MicOff, Square } from 'lucide-react-native';
+import { AlertCircle, CheckCircle2, ShoppingCart, Clock, ChevronRight, Mic, Square } from 'lucide-react-native';
 import { useFocusEffect } from 'expo-router';
 import ExpandButton from '@/components/ui/expand-button';
 import { AilyText as Text } from '@/components/ui/AilyText';
