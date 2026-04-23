@@ -183,7 +183,7 @@ export default function InventoryScreen() {
 
             {/* A visual hint pointing towards the Scan Tab */}
             <View style={tw`items-center`}>
-                <Text style={tw`text-aily-blue font-atkinson-bold text-aily-body-sm mb-2 uppercase tracking-widest`}>
+                <Text style={tw`text-aily-blue font-atkinson-bold text-aily-body-sm mb-2 uppercase`}>
                     Tap &quot;Scan&quot; below to start
                 </Text>
                 <View style={tw`animate-bounce`}>
