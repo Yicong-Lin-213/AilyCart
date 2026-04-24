@@ -16,8 +16,11 @@ import { Tabs } from 'expo-router';
 import { ClipboardList, Camera, UserCircle } from 'lucide-react-native';
 import tw from '../../lib/tailwind';
 import { Platform, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={{        
@@ -25,8 +28,8 @@ export default function TabLayout() {
         tabBarInactiveTintColor: '#595959',
         tabBarStyle: {
           ...tw`bg-white border-t border-gray-100`,
-          height: Platform.OS === 'ios' ? 100 : 80,
-          paddingBottom: Platform.OS === 'ios' ? 30 : 15,
+          height: Platform.OS === 'ios' ? 100 : 80 + insets.bottom,
+          paddingBottom: Platform.OS === 'ios' ? 30 : Math.max(insets.bottom, 15),
           paddingTop: 10,
         },
         
