@@ -1,11 +1,11 @@
 {
-  "__license__": "Copyright (c) 2026 Yicong Lin. Licensed under Apache-2.0.",
   "expo": {
+    "__license__": "Copyright (c) 2026 Yicong Lin. Licensed under Apache-2.0.",
     "name": "AilyCart",
     "slug": "ailycart",
-    "version": "1.0.0",
+    "version": "1.0.5",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "ailycartapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -20,7 +20,7 @@
     "android": {
       "package": "com.ailycart.ailycartapp",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#ffffff",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
