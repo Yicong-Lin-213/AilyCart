@@ -16,11 +16,49 @@ import json
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
+import re
+from datetime import datetime
 
 load_dotenv()
 client = OpenAI(
     base_url="https://models.github.ai/inference",
     api_key=os.getenv("GITHUB_TOKEN"))
+
+def format_special_date(data):
+    if not data or 'transaction' not in data:
+        return data
+    
+    merchant_name = str(data.get('merchant', {}).get('name', '')).upper()
+    raw_date = data['transaction'].get('date')
+
+    # print(f"name:{merchant_name}, date:{raw_date}")
+
+    if not raw_date:
+        return data
+    
+    clean_date = raw_date.replace('/', '-')
+    parts = [p.strip() for p in clean_date.split('-')]
+
+    if len(parts) != 3:
+        return data
+    
+    is_target = "DOLLARAMA" in merchant_name or "SUPERSTORE" in merchant_name
+    if is_target:
+        try:
+            wrong_year = parts[0]
+            month = parts[1]
+            wrong_day = parts[2]
+
+            actual_year_suffix = wrong_day[-2:]
+            acutal_day = wrong_year[-2:]
+
+            corrected_date = f"20{actual_year_suffix}-{month.zfill(2)}-{acutal_day.zfill(2)}"
+            # print(f"corrected date: {corrected_date}")
+            data['transaction']['date'] = corrected_date
+        except Exception as e:
+            print(f"Date swap error {e}")
+
+    return data
 
 async def analyze_receipt(image_urls: list[str]):
     """
@@ -46,6 +84,9 @@ async def analyze_receipt(image_urls: list[str]):
         "a single long receipt or multiple related receipts) and convert them into a single consolidated "
         "JSON format.\n"
         "Follow these rules strictly:\n"
+        "- Data Filtering: DO NOT include non-product fee items in the 'items' list. "
+        "Strictly ignore and filter out: Environmental Fees, Recycling Fees, Deposit Fees "
+        "(e.g., Bottle Deposit), and any similar surcharge fees that are not actual consumer goods.\n"
         "- Image Consolidation: If multiple images are provided, treat them as a continuous sequence. "
         "Identify overlapping areas to avoid duplicate line items.\n"
         "- Output Structure: Output ONLY a single valid JSON object. Do not include any conversational "
@@ -116,7 +157,8 @@ async def analyze_receipt(image_urls: list[str]):
             ],
             response_format={ "type": "json_object" }
         )
-        return json.loads(response.choices[0].message.content)
+        result = json.loads(response.choices[0].message.content)
+        return format_special_date(result)
     except Exception as e:
         print(f"Extraction Error: {str(e)}")
         return None
