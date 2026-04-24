@@ -52,6 +52,10 @@ class AudioProcessRequest(BaseModel):
 def read_root():
     return {"status": "ok", "message": "Backend is running!"}
 
+@app.get("/version")
+async def get_version():
+    return {"version": "1.0.1"}
+
 @app.post("/api/v1/process-audio")
 async def process_audio(audio: UploadFile = File(...), user_id: Optional[str] = Form(None)):
     print("Processing audio...")
