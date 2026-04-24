@@ -49,9 +49,9 @@ export default function Scanning() {
     const [isViewrVisible, setIsViewerVisible] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const imagesForView = capturedImages.map(uri => ({ uri }));
-    
+
     const { startTask } = useTask();
-    
+
     const insets = useSafeAreaInsets();
 
     useFocusEffect(
@@ -96,15 +96,35 @@ export default function Scanning() {
 
             setIsProcessing(true);
 
-            const scale = photo.width / screen.width;
-            const cropConfig = {
-                originX: frameLayout.x * scale,
-                originY: (frameLayout.y + insets.top + 10 + 35 + 16) * scale,   // 10: top bar height, 35: button height, 16: margin
-                width: frameLayout.width * scale,
-                height: frameLayout.height * scale,
-            };
-
             try {
+                const { width: originWidth, height: originHeight } = await ImageManipulator.manipulateAsync(
+                    photo.uri,
+                    []
+                );
+
+                const scaleX = originWidth / screen.width;
+                const scaleY = originHeight / screen.height;
+
+                let originX = frameLayout.x * scaleX;
+                let originY = (frameLayout.y + insets.top + 10 + 35 + 16) * scaleY; // 10: top bar height, 35: button height, 16: margin
+                let width = frameLayout.width * scaleX;
+                let height = frameLayout.height * scaleY;
+
+                if (originY + height > originHeight) {
+                    height = originHeight - originY;
+                }
+                if (originX + width > originWidth) {
+                    width = originWidth - originX;
+                }
+
+                const cropConfig = {
+                    originX: Math.max(0, originX),
+                    originY: Math.max(0, originY),
+                    width: Math.max(1, width),
+                    height: Math.max(1, height),
+                };
+
+
                 const result = await ImageManipulator.manipulateAsync(
                     photo.uri,
                     [{ crop: cropConfig }, { resize: { width: 1200 } }],
@@ -168,10 +188,10 @@ export default function Scanning() {
                         </View>
                         {/* Button */}
                         <View style={[tw`mb-12 items-center`, { marginBottom: insets.bottom + 10 }]}>
-                            <View style={[tw`w-full px-8 items-center flex-row mb-2`, {height: 80}]}>
-                                <ScrollView 
-                                    horizontal 
-                                    style={tw`flex-1`} 
+                            <View style={[tw`w-full px-8 items-center flex-row mb-2`, { height: 80 }]}>
+                                <ScrollView
+                                    horizontal
+                                    style={tw`flex-1`}
                                     contentContainerStyle={tw`items-center flex-row pr-4`}
                                     showsHorizontalScrollIndicator={false}
                                 >
@@ -184,11 +204,11 @@ export default function Scanning() {
                                                 }}
                                                 activeOpacity={0.8}
                                             >
-                                                <Image 
-                                                    source={{ uri }} 
+                                                <Image
+                                                    source={{ uri }}
                                                     style={[tw`w-14 h-14 rounded-lg mr-2 border-2 border-white shadow-sm`,
-                                                        {width: 56, height: 56}
-                                                    ]} 
+                                                    { width: 56, height: 56 }
+                                                    ]}
                                                 />
                                             </TouchableOpacity>
                                             <TouchableOpacity
@@ -197,10 +217,10 @@ export default function Scanning() {
                                                 }}
                                                 style={[
                                                     tw`absolute z-10 p-0.5 rounded-full bg-white`,
-                                                    {top: 0, right: 0}
+                                                    { top: 0, right: 0 }
                                                 ]}
                                             >
-                                                <XCircle size={15} color={tw.color('aily-red')} fill="white"/>
+                                                <XCircle size={15} color={tw.color('aily-red')} fill="white" />
                                             </TouchableOpacity>
                                         </View>
                                     ))}
@@ -263,7 +283,7 @@ export default function Scanning() {
                 onRequestClose={() => setIsViewerVisible(false)}
                 swipeToCloseEnabled={true}
                 doubleTapToZoomEnabled={true}
-                FooterComponent={({imageIndex}) => (
+                FooterComponent={({ imageIndex }) => (
                     <View style={tw`p-8 items-center justify-center`}>
                         <Text style={tw`text-white font-atkinson-bold text-lg`}>
                             {imageIndex + 1} / {capturedImages.length}
