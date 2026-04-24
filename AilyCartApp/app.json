@@ -3,7 +3,7 @@
     "__license__": "Copyright (c) 2026 Yicong Lin. Licensed under Apache-2.0.",
     "name": "AilyCart",
     "slug": "ailycart",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "ailycartapp",
