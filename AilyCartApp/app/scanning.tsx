@@ -168,8 +168,13 @@ export default function Scanning() {
                         </View>
                         {/* Button */}
                         <View style={[tw`mb-12 items-center`, { marginBottom: insets.bottom + 10 }]}>
-                            <View style={tw`w-full px-8 items-center flex-row mb-2`}>
-                                <ScrollView horizontal style={tw`flex-row gap-4 mr-2`} showsHorizontalScrollIndicator={false}>
+                            <View style={[tw`w-full px-8 items-center flex-row mb-2`, {height: 80}]}>
+                                <ScrollView 
+                                    horizontal 
+                                    style={tw`flex-1`} 
+                                    contentContainerStyle={tw`items-center flex-row pr-4`}
+                                    showsHorizontalScrollIndicator={false}
+                                >
                                     {capturedImages.map((uri, i) => (
                                         <View key={i} style={tw`relative mr-2 w-16 h-16 justify-center items-center`}>
                                             <TouchableOpacity
@@ -179,7 +184,12 @@ export default function Scanning() {
                                                 }}
                                                 activeOpacity={0.8}
                                             >
-                                                <Image source={{ uri }} style={tw`w-14 h-14 rounded-lg mr-2 border-2 border-white shadow-sm`} />
+                                                <Image 
+                                                    source={{ uri }} 
+                                                    style={[tw`w-14 h-14 rounded-lg mr-2 border-2 border-white shadow-sm`,
+                                                        {width: 56, height: 56}
+                                                    ]} 
+                                                />
                                             </TouchableOpacity>
                                             <TouchableOpacity
                                                 onPress={() => {
